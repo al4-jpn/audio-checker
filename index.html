@@ -67,18 +67,6 @@
   .ev-tab:hover { border-color: var(--text-muted); color: var(--text); }
   .ev-tab.active { background: var(--surface2); border-color: var(--green); color: var(--green); font-weight: 700; }
 
-  /* ── 設定 ── */
-  .config-panel { background: var(--surface2); border-bottom: 1px solid var(--border); padding: 14px 20px; }
-  .config-panel summary { cursor: pointer; font-size: 12px; color: var(--text-muted); user-select: none; list-style: none; display: flex; align-items: center; gap: 6px; }
-  .config-panel summary::before { content: '⚙'; }
-  .config-panel[open] summary { color: var(--amber); margin-bottom: 12px; }
-  .config-row { display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: end; }
-  .config-field label { display: block; font-size: 10px; color: var(--text-muted); margin-bottom: 4px; text-transform: uppercase; letter-spacing: .1em; }
-  .config-field input { width: 100%; background: var(--surface); border: 1px solid var(--border); color: var(--text); padding: 7px 12px; border-radius: 6px; font-size: 13px; font-family: monospace; }
-  .config-field input:focus { outline: none; border-color: var(--green); }
-  .btn-load { background: var(--green); color: #000; border: none; padding: 8px 18px; border-radius: 20px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit; transition: opacity .15s; white-space: nowrap; }
-  .btn-load:hover { opacity: .85; }
-
   /* ── コンテナ ── */
   .container { max-width: 900px; margin: 0 auto; padding: 24px 16px; }
 
@@ -205,21 +193,11 @@
   </div>
   <div class="header-right">
     <span id="last-updated"></span>
-    <button class="btn-sm" onclick="loadData()">↻ 更新</button>
+    <button class="btn-sm" onclick="refreshData()">↻ 更新</button>
   </div>
 </header>
 
 <div class="event-selector-bar" id="event-tab-bar" style="display:none"></div>
-
-<details class="config-panel" id="config-details">
-  <summary>接続情報</summary>
-  <div class="config-row">
-    <div class="config-field">
-      <label>スプレッドシートID</label>
-      <input type="text" id="sheet-id" readonly />
-    </div>
-  </div>
-</details>
 
 <div class="container">
   <div class="summary-bar" id="summary-bar" style="display:none">
@@ -248,13 +226,18 @@
   <div id="main-area">
     <div class="state-msg">
       <div class="spinner"></div>
-      <div class="title">データを読み込み中…</div>
+      <div class="title">イベント情報をロード中…</div>
     </div>
   </div>
 </div>
 
 <script>
+// 音源提出状況シートの列マッピング
 const COL = { Pro:0, 出番:1, フォーム提出名:2, クラス判定ID:3, 提出状況:4, Driveリンク:5 };
+
+// ─── 【重要】ここに新しく作った「DBスプレッドシート」のIDを入れてください ───
+const MASTER_SHEET_ID = '1b7g-oboLH1IJfVv_rGZDgz0hwAWMXhhBMXgtItnzKC0';
+const MASTER_SHEET_NAME = 'ID一覧シート';
 
 let CONFIG = { events: [] };
 let currentSheetId = '';
@@ -265,35 +248,56 @@ let currentSearch = '';
 let openIdx = -1;
 
 window.addEventListener('DOMContentLoaded', () => {
-  // URLのパラメータからイベントデータを抽出
-  const urlParams = new URLSearchParams(window.location.search);
-  const dataParam = urlParams.get('d');
-
-  if (dataParam) {
-    try {
-      const decodedData = JSON.parse(decodeURIComponent(escape(atob(dataParam))));
-      if (Array.isArray(decodedData) && decodedData.length > 0) {
-        CONFIG.events = decodedData;
-      }
-    } catch(e) {
-      console.error('URLパラメータの解析に失敗しました', e);
-    }
-  }
-
-  // データが何も取得できなかった場合のフォールバック（初期表示サンプル）
-  if (CONFIG.events.length === 0) {
-    CONFIG.events = [
-      { label: '音源提出状況 (サンプル)', sheetId: '1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgVE2upms', sheetName: '音源提出状況' }
-    ];
-  }
-
-  currentSheetId = CONFIG.events[0].sheetId;
-  document.getElementById('sheet-id').value = currentSheetId;
-
-  renderEventTabs();
-  loadData();
+  loadMasterConfig();
 });
 
+// 1. 最初のリクエスト：マスターシートからイベント一覧（DB）を読み込む
+async function loadMasterConfig() {
+  showLoading('イベント構成を読み込み中…');
+  // B2起点の指定（B2:D500でイベント名、ID、シート名を取得）
+  const url = `https://docs.google.com/spreadsheets/d/${MASTER_SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(MASTER_SHEET_NAME)}&range=B2:D500`;
+  
+  try {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`DBシートへのアクセスに失敗しました (HTTP ${res.status})`);
+    const text = await res.text();
+    
+    if (text.includes('<!DOCTYPE') || text.includes('<html')) {
+      throw new Error('マスターシートが非公開設定になっています。「リンクを知っている全員が閲覧可」に変更してください。');
+    }
+    
+    const rows = parseCSV(text);
+    CONFIG.events = [];
+    
+    // スプシのデータを行ごとに処理（ヘッダー行を考慮して1行目から取得）
+    rows.forEach(row => {
+      const label = (row[0] || '').trim();
+      const sheetId = (row[1] || '').trim();
+      const sheetName = (row[2] || '').trim();
+      
+      // 必要な情報が揃っている行だけをイベントとして追加
+      if (label && sheetId && sheetName && label !== 'イベント名') {
+        CONFIG.events.push({ label, sheetId, sheetName });
+      }
+    });
+
+    if (CONFIG.events.length === 0) {
+      throw new Error('管理スプシ（ID一覧シート）に有効なイベント情報が見つかりませんでした。データがB2セル以降に正しく入力されているか確認してください。');
+    }
+
+    // 最初のイベントをアクティブにして音源データを読み込む
+    currentEventIdx = 0;
+    currentSheetId = CONFIG.events[0].sheetId;
+    
+    renderEventTabs();
+    loadEventData();
+    
+  } catch (e) {
+    showError(e.message);
+  }
+}
+
+// 2. イベント切り替えタブの描画
 function renderEventTabs() {
   const bar = document.getElementById('event-tab-bar');
   if (!CONFIG.events || CONFIG.events.length <= 1) {
@@ -311,37 +315,42 @@ function renderEventTabs() {
   bar.style.display = 'flex';
 }
 
+// 3. タブ切り替え処理
 function switchEvent(idx) {
   if (currentEventIdx === idx) return;
   currentEventIdx = idx;
   currentSheetId = CONFIG.events[idx].sheetId;
-  document.getElementById('sheet-id').value = currentSheetId;
   
   document.querySelectorAll('.ev-tab').forEach((btn, i) => {
     btn.classList.toggle('active', i === idx);
   });
   
+  // 検索・フィルター状態のクリア
   document.getElementById('search-input').value = '';
   currentSearch = '';
   currentFilter = 'all';
   document.querySelectorAll('.fbtn').forEach(b => b.classList.toggle('active', b.getAttribute('onclick').includes('all')));
 
-  loadData();
+  loadEventData();
 }
 
-async function loadData() {
-  showLoading();
+// 4. 各イベントの提出状況シートからデータを取得
+async function loadEventData() {
+  showLoading('音源データを同期中…');
   const activeEvent = CONFIG.events[currentEventIdx];
   const sheetName = activeEvent ? activeEvent.sheetName : '音源提出状況';
+  
+  // 各イベントの提出用シートからB2:G500を取得
   const url = `https://docs.google.com/spreadsheets/d/${currentSheetId}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetName)}&range=B2:G500`;
   
   try {
     const res = await fetch(url);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    if (!res.ok) throw new Error(`提出状況シートを取得できません (HTTP ${res.status})`);
     const text = await res.text();
-    if (text.includes('<!DOCTYPE') || text.includes('<html'))
-      throw new Error('シートが非公開か、IDが間違っています。');
-    const rows = parseCSV(text).slice(1);
+    if (text.includes('<!DOCTYPE') || text.includes('<html')) {
+      throw new Error(`選択されたイベント「${activeEvent.label}」のシートが非公開、またはIDが間違っています。`);
+    }
+    const rows = parseCSV(text).slice(1); // ヘッダーをスキップ
     processData(rows);
     document.getElementById('last-updated').textContent = '同期: ' + new Date().toLocaleTimeString('ja-JP', {hour: '2-digit', minute:'2-digit'});
   } catch(e) { 
@@ -349,6 +358,12 @@ async function loadData() {
   }
 }
 
+// 手動リフレッシュボタン
+function refreshData() {
+  loadMasterConfig();
+}
+
+// ── 以下、以前と同様のロジック・レンダリング処理 ──
 function parseCSV(text) {
   const rows = [];
   for (const line of text.split('\n')) {
@@ -519,12 +534,12 @@ function setFilter(f, btn) {
   renderList();
 }
 
-function showLoading() {
+function showLoading(msg = '読み込み中…') {
   ['summary-bar','prog-section','search-filter'].forEach(id=>{
     const el = document.getElementById(id);
     if(el) el.style.display='none';
   });
-  document.getElementById('main-area').innerHTML=`<div class="state-msg"><div class="spinner"></div><div class="title">読み込み中…</div></div>`;
+  document.getElementById('main-area').innerHTML=`<div class="state-msg"><div class="spinner"></div><div class="title">${msg}</div></div>`;
 }
 function showError(msg) {
   ['summary-bar','prog-section','search-filter'].forEach(id=>{
