@@ -29,11 +29,11 @@
   header {
     background: rgba(10,10,15,0.96); backdrop-filter: blur(12px);
     border-bottom: 1px solid var(--border);
-    padding: 14px 28px; display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 20px; display: flex; align-items: center; justify-content: space-between;
     position: sticky; top: 0; z-index: 200; gap: 12px; flex-wrap: wrap;
   }
   .logo { display: flex; align-items: center; gap: 10px; }
-  .logo-icon { width: 30px; height: 30px; background: var(--green); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+  .logo-icon { width: 30px; height: 30px; background: var(--green); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
   .logo h1 { font-family: 'Space Grotesk', sans-serif; font-size: 15px; font-weight: 700; }
   .logo h1 span { color: var(--green); }
   .header-right { display: flex; align-items: center; gap: 10px; }
@@ -41,8 +41,34 @@
   .btn-sm { background: none; border: 1px solid var(--border); color: var(--text-muted); padding: 5px 12px; border-radius: 20px; font-size: 12px; cursor: pointer; transition: all .15s; font-family: inherit; }
   .btn-sm:hover { border-color: var(--green); color: var(--green); }
 
+  /* ── イベント切り替えタブ ── */
+  .event-selector-bar {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 10px 16px;
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    scrollbar-width: none; /* Firefox */
+  }
+  .event-selector-bar::-webkit-scrollbar { display: none; /* Safari/Chrome */ }
+  .ev-tab {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all .15s;
+  }
+  .ev-tab:hover { border-color: var(--text-muted); color: var(--text); }
+  .ev-tab.active { background: var(--surface2); border-color: var(--green); color: var(--green); font-weight: 700; }
+
   /* ── 設定 ── */
-  .config-panel { background: var(--surface2); border-bottom: 1px solid var(--border); padding: 14px 28px; }
+  .config-panel { background: var(--surface2); border-bottom: 1px solid var(--border); padding: 14px 20px; }
   .config-panel summary { cursor: pointer; font-size: 12px; color: var(--text-muted); user-select: none; list-style: none; display: flex; align-items: center; gap: 6px; }
   .config-panel summary::before { content: '⚙'; }
   .config-panel[open] summary { color: var(--amber); margin-bottom: 12px; }
@@ -50,86 +76,110 @@
   .config-field label { display: block; font-size: 10px; color: var(--text-muted); margin-bottom: 4px; text-transform: uppercase; letter-spacing: .1em; }
   .config-field input { width: 100%; background: var(--surface); border: 1px solid var(--border); color: var(--text); padding: 7px 12px; border-radius: 6px; font-size: 13px; font-family: monospace; }
   .config-field input:focus { outline: none; border-color: var(--green); }
-  .btn-load { background: var(--green); color: #000; border: none; padding: 8px 18px; border-radius: 20px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit; transition: opacity .15s; }
+  .btn-load { background: var(--green); color: #000; border: none; padding: 8px 18px; border-radius: 20px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit; transition: opacity .15s; white-space: nowrap; }
   .btn-load:hover { opacity: .85; }
 
   /* ── コンテナ ── */
-  .container { max-width: 900px; margin: 0 auto; padding: 28px 20px; }
+  .container { max-width: 900px; margin: 0 auto; padding: 24px 16px; }
 
   /* ── サマリー ── */
-  .summary-bar { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-bottom: 22px; }
-  .sc { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 14px 18px; }
-  .sc .lbl { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: .1em; margin-bottom: 5px; }
-  .sc .val { font-family: 'Space Grotesk', sans-serif; font-size: 28px; font-weight: 700; line-height: 1; }
+  .summary-bar { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-bottom: 18px; }
+  .sc { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 12px 16px; }
+  .sc .lbl { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: .1em; margin-bottom: 4px; }
+  .sc .val { font-family: 'Space Grotesk', sans-serif; font-size: 26px; font-weight: 700; line-height: 1; }
   .sc.total .val { color: var(--text); }
   .sc.done  .val { color: var(--green); }
   .sc.pend  .val { color: var(--red); }
 
-  .prog-section { margin-bottom: 18px; }
+  .prog-section { margin-bottom: 16px; }
   .prog-label { display: flex; justify-content: space-between; font-size: 11px; color: var(--text-muted); margin-bottom: 6px; }
   .prog-track { height: 4px; background: var(--surface2); border-radius: 2px; overflow: hidden; }
   .prog-fill { height: 100%; background: var(--green); border-radius: 2px; transition: width .6s ease; width: 0%; }
 
-  /* ── フィルター ── */
-  .filter-row { display: flex; gap: 8px; margin-bottom: 18px; flex-wrap: wrap; }
-  .fbtn { background: none; border: 1px solid var(--border); color: var(--text-muted); padding: 5px 14px; border-radius: 20px; font-size: 12px; cursor: pointer; transition: all .15s; font-family: inherit; }
+  /* ── 検索 & フィルター ── */
+  .search-filter { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; align-items: center; }
+
+  .search-wrap {
+    flex: 1; min-width: 180px;
+    position: relative;
+  }
+  .search-wrap .icon {
+    position: absolute; left: 11px; top: 50%; transform: translateY(-50%);
+    font-size: 14px; color: var(--text-muted); pointer-events: none;
+  }
+  #search-input {
+    width: 100%; background: var(--surface); border: 1px solid var(--border);
+    color: var(--text); padding: 8px 12px 8px 34px;
+    border-radius: 20px; font-size: 13px; font-family: inherit;
+    transition: border-color .15s;
+  }
+  #search-input:focus { outline: none; border-color: var(--green); }
+  #search-input::placeholder { color: var(--text-muted); }
+
+  .filter-row { display: flex; gap: 6px; flex-wrap: wrap; }
+  .fbtn { background: none; border: 1px solid var(--border); color: var(--text-muted); padding: 5px 12px; border-radius: 20px; font-size: 12px; cursor: pointer; transition: all .15s; font-family: inherit; white-space: nowrap; }
   .fbtn:hover, .fbtn.active { background: var(--green); color: #000; border-color: var(--green); font-weight: 700; }
 
   /* ── トラックリスト ── */
   .list-header {
-    display: grid; grid-template-columns: 36px 1fr 100px 36px;
+    display: grid; grid-template-columns: 36px 1fr 90px 32px;
     padding: 6px 12px; border-bottom: 1px solid var(--border);
     font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: .1em;
     margin-bottom: 4px;
   }
 
   .tracklist { display: flex; flex-direction: column; }
-
   .track-item { border-radius: 8px; overflow: hidden; margin-bottom: 2px; }
 
   .track-row {
-    display: grid; grid-template-columns: 36px 1fr 100px 36px;
-    align-items: center; gap: 8px;
-    padding: 9px 12px; cursor: pointer;
+    display: grid; grid-template-columns: 36px 1fr 90px 32px;
+    align-items: start; gap: 8px;
+    padding: 10px 12px; cursor: pointer;
     transition: background .12s; border-radius: 8px;
   }
   .track-row:hover { background: var(--surface2); }
   .track-item.open .track-row { background: var(--surface2); border-radius: 8px 8px 0 0; }
 
-  .track-num { font-family: 'Space Grotesk', sans-serif; font-size: 13px; color: var(--text-muted); text-align: center; }
+  .track-num {
+    font-family: 'Space Grotesk', sans-serif; font-size: 13px;
+    color: var(--text-muted); text-align: center;
+    padding-top: 2px;
+  }
   .track-item.open .track-num { color: var(--green); }
 
   .track-info { min-width: 0; }
-  .track-name { font-size: 14px; font-weight: 500; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .track-name {
+    font-size: 14px; font-weight: 500; color: var(--text);
+    line-height: 1.4;
+    word-break: break-all;
+  }
   .track-item.open .track-name { color: var(--green); }
-  .track-sub { font-size: 11px; color: var(--text-muted); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .track-sub { font-size: 11px; color: var(--text-muted); margin-top: 3px; }
 
-  .badge { padding: 2px 9px; border-radius: 20px; font-size: 10px; font-weight: 700; }
+  .track-status { padding-top: 2px; }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 10px; font-weight: 700; white-space: nowrap; }
   .badge-done { background: var(--green-bg); color: var(--green); border: 1px solid var(--green); }
   .badge-pend { background: var(--red-bg);   color: var(--red);   border: 1px solid var(--red); }
 
-  .track-toggle { text-align: center; font-size: 16px; color: var(--text-muted); transition: transform .25s; }
+  .track-toggle { text-align: center; font-size: 16px; color: var(--text-muted); transition: transform .25s; padding-top: 2px; }
   .track-item.open .track-toggle { transform: rotate(180deg); color: var(--green); }
   .no-audio .track-toggle { opacity: .25; cursor: not-allowed; }
 
-  /* ── 埋め込みプレイヤー展開エリア ── */
+  /* ── 埋め込みプレイヤー ── */
   .player-embed {
     max-height: 0; overflow: hidden;
     transition: max-height .35s cubic-bezier(.4,0,.2,1);
-    background: var(--surface2);
-    border-radius: 0 0 8px 8px;
+    background: var(--surface2); border-radius: 0 0 8px 8px;
   }
   .track-item.open .player-embed { max-height: 100px; }
+  .player-embed iframe { display: block; width: 100%; height: 80px; border: none; border-top: 1px solid var(--border); }
+  .no-audio-msg { padding: 14px 16px; font-size: 12px; color: var(--text-muted); border-top: 1px solid var(--border); }
 
-  .player-embed iframe {
-    display: block; width: 100%; height: 80px; border: none;
-    border-top: 1px solid var(--border);
-  }
+  /* 検索ヒットハイライト */
+  mark { background: rgba(240,165,0,0.3); color: var(--text); border-radius: 2px; padding: 0 1px; }
 
-  .no-audio-msg {
-    padding: 14px 16px; font-size: 12px; color: var(--text-muted);
-    border-top: 1px solid var(--border);
-  }
+  /* 検索結果なし */
+  .no-results { text-align: center; padding: 40px 20px; color: var(--text-muted); font-size: 14px; }
 
   /* ── 状態 ── */
   .state-msg { text-align: center; padding: 60px 20px; color: var(--text-muted); }
@@ -139,11 +189,13 @@
   .spinner { width: 36px; height: 36px; border: 3px solid var(--border); border-top-color: var(--green); border-radius: 50%; animation: spin .8s linear infinite; margin: 0 auto 14px; }
   @keyframes spin { to { transform: rotate(360deg); } }
 
-  @media (max-width: 600px) {
-    .list-header { grid-template-columns: 30px 1fr 80px 28px; }
-    .track-row   { grid-template-columns: 30px 1fr 80px 28px; }
-    .summary-bar { gap: 8px; }
+  @media (max-width: 480px) {
+    .list-header { grid-template-columns: 28px 1fr 72px 24px; font-size: 9px; }
+    .track-row   { grid-template-columns: 28px 1fr 72px 24px; padding: 9px 10px; }
+    .track-name  { font-size: 13px; }
     .sc .val { font-size: 22px; }
+    .summary-bar { gap: 6px; }
+    .sc { padding: 10px 12px; }
   }
 </style>
 </head>
@@ -160,21 +212,23 @@
   </div>
 </header>
 
-<details class="config-panel" id="config-details" open>
-  <summary>接続設定</summary>
+<div class="event-selector-bar" id="event-tab-bar" style="display:none"></div>
+
+<details class="config-panel" id="config-details">
+  <summary>一時的な接続情報の上書き</summary>
   <div class="config-row">
     <div class="config-field">
-      <label>スプレッドシートID（URLの /d/〇〇〇/ の部分）</label>
+      <label>スプレッドシートID</label>
       <input type="text" id="sheet-id" placeholder="1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgVE2upms" />
     </div>
-    <button class="btn-load" onclick="loadData()">読み込む</button>
+    <button class="btn-load" onclick="loadData(true)">読み込む</button>
   </div>
 </details>
 
 <div class="container">
   <div class="summary-bar" id="summary-bar" style="display:none">
     <div class="sc total"><div class="lbl">総クラス数</div><div class="val" id="total-count">—</div></div>
-    <div class="sc done"> <div class="lbl">✅ 提出完了</div><div class="val" id="done-count">—</div></div>
+    <div class="sc done"> <div class="lbl">✅ 完了</div><div class="val" id="done-count">—</div></div>
     <div class="sc pend"> <div class="lbl">❌ 未提出</div><div class="val" id="pending-count">—</div></div>
   </div>
 
@@ -183,56 +237,122 @@
     <div class="prog-track"><div class="prog-fill" id="prog-fill"></div></div>
   </div>
 
-  <div class="filter-row" id="filter-row" style="display:none">
-    <button class="fbtn active" onclick="setFilter('all',this)">すべて</button>
-    <button class="fbtn" onclick="setFilter('done',this)">✅ 提出済み</button>
-    <button class="fbtn" onclick="setFilter('pend',this)">❌ 未提出</button>
+  <div class="search-filter" id="search-filter" style="display:none">
+    <div class="search-wrap">
+      <span class="icon">🔍</span>
+      <input type="search" id="search-input" placeholder="名前・クラス名で検索…" oninput="onSearch()" />
+    </div>
+    <div class="filter-row">
+      <button class="fbtn active" onclick="setFilter('all',this)">すべて</button>
+      <button class="fbtn" onclick="setFilter('done',this)">✅ 完了</button>
+      <button class="fbtn" onclick="setFilter('pend',this)">❌ 未提出</button>
+    </div>
   </div>
 
   <div id="main-area">
     <div class="state-msg">
-      <div class="icon">🎵</div>
-      <div class="title">スプレッドシートを接続してください</div>
-      <div class="desc">上の「接続設定」にスプレッドシートIDを入力して「読み込む」をクリック<br>
-        <small style="color:var(--text-dim)">※ シートは「リンクを知っている全員が閲覧可」に設定してください</small>
-      </div>
+      <div class="spinner"></div>
+      <div class="title">ダッシュボードを同期中…</div>
     </div>
   </div>
 </div>
 
 <script>
 const COL = { Pro:0, 出番:1, フォーム提出名:2, クラス判定ID:3, 提出状況:4, Driveリンク:5 };
-const SHEET_NAME = '音源提出状況';
 
+// 管理画面（admin.html）から登録されたデータを取得。無ければデモ用の初期設定
+let savedEvents = JSON.parse(localStorage.getItem('dashboard_events')) || [];
+
+const CONFIG = {
+  events: savedEvents.length > 0 ? savedEvents : [
+    { label: '音源提出状況 (サンプル)', sheetId: '1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgVE2upms', sheetName: '音源提出状況' }
+  ]
+};
+
+let currentSheetId = '';
+let currentEventIdx = 0;
 let allTracks = [];
 let currentFilter = 'all';
-let openIdx = -1; // 現在展開中のトラックindex
+let currentSearch = '';
+let openIdx = -1;
 
 window.addEventListener('DOMContentLoaded', () => {
-  const sid = localStorage.getItem('sheetId');
-  if (sid) { document.getElementById('sheet-id').value = sid; loadData(); }
+  // 最初のイベントの情報を初期値として読み込む
+  if (CONFIG.events.length > 0) {
+    currentSheetId = CONFIG.events[0].sheetId;
+    document.getElementById('sheet-id').value = currentSheetId;
+  }
+
+  // イベントタブを動的にレンダリング
+  renderEventTabs();
+  loadData();
 });
 
+// ── イベントタブの描画 ──────────────────────────
+function renderEventTabs() {
+  const bar = document.getElementById('event-tab-bar');
+  if (!CONFIG.events || CONFIG.events.length <= 1) {
+    bar.style.display = 'none';
+    return;
+  }
+  bar.innerHTML = '';
+  CONFIG.events.forEach((ev, idx) => {
+    const btn = document.createElement('button');
+    btn.className = `ev-tab ${idx === currentEventIdx ? 'active' : ''}`;
+    btn.textContent = ev.label;
+    btn.onclick = () => switchEvent(idx);
+    bar.appendChild(btn);
+  });
+  bar.style.display = 'flex';
+}
+
+// ── イベント（シート・ID）切り替え処理 ──────────────
+function switchEvent(idx) {
+  if (currentEventIdx === idx) return;
+  currentEventIdx = idx;
+  currentSheetId = CONFIG.events[idx].sheetId;
+  document.getElementById('sheet-id').value = currentSheetId;
+  
+  // タブのアクティブ表示切り替え
+  document.querySelectorAll('.ev-tab').forEach((btn, i) => {
+    btn.classList.toggle('active', i === idx);
+  });
+  
+  // 検索・フィルター状態のクリア
+  document.getElementById('search-input').value = '';
+  currentSearch = '';
+  currentFilter = 'all';
+  document.querySelectorAll('.fbtn').forEach(b => b.classList.toggle('active', b.getAttribute('onclick').includes('all')));
+
+  loadData();
+}
+
 // ── データ取得 ──────────────────────────
-async function loadData() {
-  const sheetId = document.getElementById('sheet-id').value.trim();
-  if (!sheetId) { document.getElementById('config-details').open = true; return; }
-  localStorage.setItem('sheetId', sheetId);
+async function loadData(isManualUpdate = false) {
+  if (isManualUpdate) {
+    const manualId = document.getElementById('sheet-id').value.trim();
+    if (manualId) currentSheetId = manualId;
+  }
+  
   showLoading();
 
-  const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(SHEET_NAME)}&range=B2:G500`;
+  const activeEvent = CONFIG.events[currentEventIdx];
+  const sheetName = activeEvent ? activeEvent.sheetName : '音源提出状況';
+  
+  const url = `https://docs.google.com/spreadsheets/d/${currentSheetId}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetName)}&range=B2:G500`;
+  
   try {
     const res = await fetch(url);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const text = await res.text();
     if (text.includes('<!DOCTYPE') || text.includes('<html'))
       throw new Error('シートが非公開か、IDが間違っています。「リンクを知っている全員が閲覧可」に設定してください。');
-
     const rows = parseCSV(text).slice(1);
     processData(rows);
-    document.getElementById('config-details').open = false;
-    document.getElementById('last-updated').textContent = '最終更新: ' + new Date().toLocaleString('ja-JP');
-  } catch(e) { showError(e.message); }
+    document.getElementById('last-updated').textContent = '同期: ' + new Date().toLocaleTimeString('ja-JP', {hour: '2-digit', minute:'2-digit'});
+  } catch(e) { 
+    showError(e.message); 
+  }
 }
 
 function parseCSV(text) {
@@ -242,7 +362,7 @@ function parseCSV(text) {
     const cells = []; let cur = '', inQ = false;
     for (let i = 0; i < line.length; i++) {
       const c = line[i];
-      if (c === '"') { if (inQ && line[i+1]==='"') { cur+='"'; i++; } else inQ=!inQ; }
+      if (c==='"') { if (inQ && line[i+1]==='"') { cur+='"'; i++; } else inQ=!inQ; }
       else if (c===',' && !inQ) { cells.push(cur.trim()); cur=''; }
       else cur+=c;
     }
@@ -269,13 +389,12 @@ function processData(rows) {
     });
   }
   allTracks.sort((a,b) => {
-    const ta = parseInt(a.turn)||999, tb = parseInt(b.turn)||999;
+    const ta=parseInt(a.turn)||999, tb=parseInt(b.turn)||999;
     return ta!==tb ? ta-tb : a.name.localeCompare(b.name,'ja');
   });
   renderAll();
 }
 
-// Google Drive → preview埋め込みURL
 function driveToEmbedUrl(url) {
   if (!url) return null;
   const m1 = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
@@ -296,34 +415,52 @@ function renderAll() {
   document.getElementById('pending-count').textContent = total-done;
   document.getElementById('prog-pct').textContent      = pct+'%';
   document.getElementById('prog-fill').style.width     = pct+'%';
-  ['summary-bar','prog-section','filter-row'].forEach(id=>document.getElementById(id).style.display='');
+  ['summary-bar','prog-section','search-filter'].forEach(id=> {
+    const el = document.getElementById(id);
+    if(el) el.style.display='';
+  });
 
   openIdx = -1;
   renderList();
 }
 
-function renderList() {
-  const filtered = allTracks.filter(t => {
-    if (currentFilter==='done') return t.submitted;
-    if (currentFilter==='pend') return !t.submitted;
-    return true;
+function getFiltered() {
+  const q = currentSearch.trim().toLowerCase();
+  return allTracks.filter(t => {
+    const matchFilter =
+      currentFilter==='all' ? true :
+      currentFilter==='done' ? t.submitted : !t.submitted;
+    if (!matchFilter) return false;
+    if (!q) return true;
+    return t.name.toLowerCase().includes(q) ||
+           t.pro.toLowerCase().includes(q) ||
+           t.classId.toLowerCase().includes(q);
   });
+}
+
+function highlight(text, query) {
+  if (!query) return esc(text);
+  const escaped = query.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+  return esc(text).replace(new RegExp(`(${escaped})`, 'gi'), '<mark>$1</mark>');
+}
+
+function renderList() {
+  const filtered = getFiltered();
+  const q = currentSearch.trim().toLowerCase();
 
   if (!filtered.length) {
     document.getElementById('main-area').innerHTML = `
-      <div class="state-msg">
-        <div class="icon">${currentFilter==='pend'?'🎉':'📭'}</div>
-        <div class="title">${currentFilter==='pend'?'全クラス提出済み！':'該当なし'}</div>
+      <div class="no-results">
+        ${q ? `「${esc(currentSearch)}」に一致するデータが見つかりません` : '登録されているクラスがありません'}
       </div>`;
     return;
   }
 
   const wrap = document.createElement('div');
 
-  // ヘッダー
   const hdr = document.createElement('div');
   hdr.className = 'list-header';
-  hdr.innerHTML = `<span>#</span><span>クラス名</span><span>ステータス</span><span></span>`;
+  hdr.innerHTML = `<span>#</span><span>クラス名</span><span>状態</span><span></span>`;
   wrap.appendChild(hdr);
 
   const list = document.createElement('div');
@@ -341,10 +478,10 @@ function renderList() {
       <div class="track-row" onclick="${hasAudio ? `togglePlayer(${globalIdx})` : ''}">
         <div class="track-num">${esc(t.turn || String(i+1))}</div>
         <div class="track-info">
-          <div class="track-name">${esc(t.name)}</div>
-          <div class="track-sub">${esc(t.pro||'—')}${t.classId?' · '+esc(t.classId):''}</div>
+          <div class="track-name">${highlight(t.name, q)}</div>
+          <div class="track-sub">${highlight(t.pro||'—', q)}${t.classId?' · '+highlight(t.classId,q):''}</div>
         </div>
-        <div>
+        <div class="track-status">
           <span class="badge ${t.submitted?'badge-done':'badge-pend'}">
             ${t.submitted ? '✅ 完了' : '❌ 未提出'}
           </span>
@@ -358,7 +495,6 @@ function renderList() {
         }
       </div>
     `;
-
     list.appendChild(item);
   });
 
@@ -367,21 +503,19 @@ function renderList() {
   document.getElementById('main-area').appendChild(wrap);
 }
 
-// ── プレイヤー開閉 ──────────────────────
+// ── プレイヤー ──────────────────────────
 function togglePlayer(idx) {
   const t = allTracks[idx];
   if (!t || !t.embedUrl) return;
-
   const item   = document.getElementById(`item-${idx}`);
   const iframe = document.getElementById(`iframe-${idx}`);
   const isOpen = item.classList.contains('open');
 
-  // 他を閉じる
   if (openIdx >= 0 && openIdx !== idx) {
-    const prevItem   = document.getElementById(`item-${openIdx}`);
-    const prevIframe = document.getElementById(`iframe-${openIdx}`);
-    if (prevItem)   prevItem.classList.remove('open');
-    if (prevIframe) prevIframe.src = ''; // 再生停止
+    const pi = document.getElementById(`item-${openIdx}`);
+    const pf = document.getElementById(`iframe-${openIdx}`);
+    if (pi) pi.classList.remove('open');
+    if (pf) pf.src = '';
     openIdx = -1;
   }
 
@@ -391,11 +525,17 @@ function togglePlayer(idx) {
     openIdx = -1;
   } else {
     item.classList.add('open');
-    iframe.src = t.embedUrl; // 展開時にsrcをセット（遅延読み込み）
+    iframe.src = t.embedUrl;
     openIdx = idx;
-    // 少し後にスクロール
     setTimeout(() => item.scrollIntoView({ behavior:'smooth', block:'nearest' }), 50);
   }
+}
+
+// ── 検索・フィルター ────────────────────
+function onSearch() {
+  currentSearch = document.getElementById('search-input').value;
+  openIdx = -1;
+  renderList();
 }
 
 function setFilter(f, btn) {
@@ -407,11 +547,17 @@ function setFilter(f, btn) {
 }
 
 function showLoading() {
-  ['summary-bar','prog-section','filter-row'].forEach(id=>document.getElementById(id).style.display='none');
+  ['summary-bar','prog-section','search-filter'].forEach(id=>{
+    const el = document.getElementById(id);
+    if(el) el.style.display='none';
+  });
   document.getElementById('main-area').innerHTML=`<div class="state-msg"><div class="spinner"></div><div class="title">読み込み中…</div></div>`;
 }
 function showError(msg) {
-  ['summary-bar','prog-section','filter-row'].forEach(id=>document.getElementById(id).style.display='none');
+  ['summary-bar','prog-section','search-filter'].forEach(id=>{
+    const el = document.getElementById(id);
+    if(el) el.style.display='none';
+  });
   document.getElementById('main-area').innerHTML=`<div class="state-msg"><div class="icon">⚠️</div><div class="title">エラー</div><div class="desc">${esc(msg)}</div></div>`;
 }
 function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
