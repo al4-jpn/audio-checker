@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>音源提出ダッシュボード</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Space+Grotesk:wght@400;600;700&display=swap');
+
+  :root {
+    --bg: #0a0a0f;
+    --surface: #13131a;
+    --surface2: #1a1a24;
+    --border: #2a2a3a;
+    --green: #1db954;
+    --green-bg: #0a2016;
+    --red: #f85149;
+    --red-bg: #200a0a;
+    --amber: #f0a500;
+    --text: #e8e8f0;
+    --text-muted: #6e6e8a;
+    --text-dim: #3a3a50;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Noto Sans JP', sans-serif; min-height: 100vh; padding-bottom: 60px; }
+
+  /* ── ヘッダー ── */
+  header {
+    background: rgba(10,10,15,0.96); backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 28px; display: flex; align-items: center; justify-content: space-between;
+    position: sticky; top: 0; z-index: 200; gap: 12px; flex-wrap: wrap;
+  }
+  .logo { display: flex; align-items: center; gap: 10px; }
+  .logo-icon { width: 30px; height: 30px; background: var(--green); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+  .logo h1 { font-family: 'Space Grotesk', sans-serif; font-size: 15px; font-weight: 700; }
+  .logo h1 span { color: var(--green); }
+  .header-right { display: flex; align-items: center; gap: 10px; }
+  #last-updated { font-size: 11px; color: var(--text-muted); }
+  .btn-sm { background: none; border: 1px solid var(--border); color: var(--text-muted); padding: 5px 12px; border-radius: 20px; font-size: 12px; cursor: pointer; transition: all .15s; font-family: inherit; }
+  .btn-sm:hover { border-color: var(--green); color: var(--green); }
+
+  /* ── 設定 ── */
+  .config-panel { background: var(--surface2); border-bottom: 1px solid var(--border); padding: 14px 28px; }
+  .config-panel summary { cursor: pointer; font-size: 12px; color: var(--text-muted); user-select: none; list-style: none; display: flex; align-items: center; gap: 6px; }
+  .config-panel summary::before { content: '⚙'; }
+  .config-panel[open] summary { color: var(--amber); margin-bottom: 12px; }
+  .config-row { display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: end; }
+  .config-field label { display: block; font-size: 10px; color: var(--text-muted); margin-bottom: 4px; text-transform: uppercase; letter-spacing: .1em; }
+  .config-field input { width: 100%; background: var(--surface); border: 1px solid var(--border); color: var(--text); padding: 7px 12px; border-radius: 6px; font-size: 13px; font-family: monospace; }
+  .config-field input:focus { outline: none; border-color: var(--green); }
+  .btn-load { background: var(--green); color: #000; border: none; padding: 8px 18px; border-radius: 20px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit; transition: opacity .15s; }
+  .btn-load:hover { opacity: .85; }
+
+  /* ── コンテナ ── */
+  .container { max-width: 900px; margin: 0 auto; padding: 28px 20px; }
+
+  /* ── サマリー ── */
+  .summary-bar { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-bottom: 22px; }
+  .sc { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 14px 18px; }
+  .sc .lbl { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: .1em; margin-bottom: 5px; }
+  .sc .val { font-family: 'Space Grotesk', sans-serif; font-size: 28px; font-weight: 700; line-height: 1; }
+  .sc.total .val { color: var(--text); }
+  .sc.done  .val { color: var(--green); }
+  .sc.pend  .val { color: var(--red); }
+
+  .prog-section { margin-bottom: 18px; }
+  .prog-label { display: flex; justify-content: space-between; font-size: 11px; color: var(--text-muted); margin-bottom: 6px; }
+  .prog-track { height: 4px; background: var(--surface2); border-radius: 2px; overflow: hidden; }
+  .prog-fill { height: 100%; background: var(--green); border-radius: 2px; transition: width .6s ease; width: 0%; }
+
+  /* ── フィルター ── */
+  .filter-row { display: flex; gap: 8px; margin-bottom: 18px; flex-wrap: wrap; }
+  .fbtn { background: none; border: 1px solid var(--border); color: var(--text-muted); padding: 5px 14px; border-radius: 20px; font-size: 12px; cursor: pointer; transition: all .15s; font-family: inherit; }
+  .fbtn:hover, .fbtn.active { background: var(--green); color: #000; border-color: var(--green); font-weight: 700; }
+
+  /* ── トラックリスト ── */
+  .list-header {
+    display: grid; grid-template-columns: 36px 1fr 100px 36px;
+    padding: 6px 12px; border-bottom: 1px solid var(--border);
+    font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: .1em;
+    margin-bottom: 4px;
+  }
+
+  .tracklist { display: flex; flex-direction: column; }
+
+  .track-item { border-radius: 8px; overflow: hidden; margin-bottom: 2px; }
+
+  .track-row {
+    display: grid; grid-template-columns: 36px 1fr 100px 36px;
+    align-items: center; gap: 8px;
+    padding: 9px 12px; cursor: pointer;
+    transition: background .12s; border-radius: 8px;
+  }
+  .track-row:hover { background: var(--surface2); }
+  .track-item.open .track-row { background: var(--surface2); border-radius: 8px 8px 0 0; }
+
+  .track-num { font-family: 'Space Grotesk', sans-serif; font-size: 13px; color: var(--text-muted); text-align: center; }
+  .track-item.open .track-num { color: var(--green); }
+
+  .track-info { min-width: 0; }
+  .track-name { font-size: 14px; font-weight: 500; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .track-item.open .track-name { color: var(--green); }
+  .track-sub { font-size: 11px; color: var(--text-muted); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  .badge { padding: 2px 9px; border-radius: 20px; font-size: 10px; font-weight: 700; }
+  .badge-done { background: var(--green-bg); color: var(--green); border: 1px solid var(--green); }
+  .badge-pend { background: var(--red-bg);   color: var(--red);   border: 1px solid var(--red); }
+
+  .track-toggle { text-align: center; font-size: 16px; color: var(--text-muted); transition: transform .25s; }
+  .track-item.open .track-toggle { transform: rotate(180deg); color: var(--green); }
+  .no-audio .track-toggle { opacity: .25; cursor: not-allowed; }
+
+  /* ── 埋め込みプレイヤー展開エリア ── */
+  .player-embed {
+    max-height: 0; overflow: hidden;
+    transition: max-height .35s cubic-bezier(.4,0,.2,1);
+    background: var(--surface2);
+    border-radius: 0 0 8px 8px;
+  }
+  .track-item.open .player-embed { max-height: 100px; }
+
+  .player-embed iframe {
+    display: block; width: 100%; height: 80px; border: none;
+    border-top: 1px solid var(--border);
+  }
+
+  .no-audio-msg {
+    padding: 14px 16px; font-size: 12px; color: var(--text-muted);
+    border-top: 1px solid var(--border);
+  }
+
+  /* ── 状態 ── */
+  .state-msg { text-align: center; padding: 60px 20px; color: var(--text-muted); }
+  .state-msg .icon { font-size: 44px; margin-bottom: 12px; }
+  .state-msg .title { font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+  .state-msg .desc { font-size: 13px; line-height: 1.8; }
+  .spinner { width: 36px; height: 36px; border: 3px solid var(--border); border-top-color: var(--green); border-radius: 50%; animation: spin .8s linear infinite; margin: 0 auto 14px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  @media (max-width: 600px) {
+    .list-header { grid-template-columns: 30px 1fr 80px 28px; }
+    .track-row   { grid-template-columns: 30px 1fr 80px 28px; }
+    .summary-bar { gap: 8px; }
+    .sc .val { font-size: 22px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">♪</div>
+    <h1>音源提出<span>ダッシュボード</span></h1>
+  </div>
+  <div class="header-right">
+    <span id="last-updated"></span>
+    <button class="btn-sm" onclick="loadData()">↻ 更新</button>
+  </div>
+</header>
+
+<details class="config-panel" id="config-details" open>
+  <summary>接続設定</summary>
+  <div class="config-row">
+    <div class="config-field">
+      <label>スプレッドシートID（URLの /d/〇〇〇/ の部分）</label>
+      <input type="text" id="sheet-id" placeholder="1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgVE2upms" />
+    </div>
+    <button class="btn-load" onclick="loadData()">読み込む</button>
+  </div>
+</details>
+
+<div class="container">
+  <div class="summary-bar" id="summary-bar" style="display:none">
+    <div class="sc total"><div class="lbl">総クラス数</div><div class="val" id="total-count">—</div></div>
+    <div class="sc done"> <div class="lbl">✅ 提出完了</div><div class="val" id="done-count">—</div></div>
+    <div class="sc pend"> <div class="lbl">❌ 未提出</div><div class="val" id="pending-count">—</div></div>
+  </div>
+
+  <div class="prog-section" id="prog-section" style="display:none">
+    <div class="prog-label"><span>提出進捗</span><span id="prog-pct">0%</span></div>
+    <div class="prog-track"><div class="prog-fill" id="prog-fill"></div></div>
+  </div>
+
+  <div class="filter-row" id="filter-row" style="display:none">
+    <button class="fbtn active" onclick="setFilter('all',this)">すべて</button>
+    <button class="fbtn" onclick="setFilter('done',this)">✅ 提出済み</button>
+    <button class="fbtn" onclick="setFilter('pend',this)">❌ 未提出</button>
+  </div>
+
+  <div id="main-area">
+    <div class="state-msg">
+      <div class="icon">🎵</div>
+      <div class="title">スプレッドシートを接続してください</div>
+      <div class="desc">上の「接続設定」にスプレッドシートIDを入力して「読み込む」をクリック<br>
+        <small style="color:var(--text-dim)">※ シートは「リンクを知っている全員が閲覧可」に設定してください</small>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const COL = { Pro:0, 出番:1, フォーム提出名:2, クラス判定ID:3, 提出状況:4, Driveリンク:5 };
+const SHEET_NAME = '音源提出状況';
+
+let allTracks = [];
+let currentFilter = 'all';
+let openIdx = -1; // 現在展開中のトラックindex
+
+window.addEventListener('DOMContentLoaded', () => {
+  const sid = localStorage.getItem('sheetId');
+  if (sid) { document.getElementById('sheet-id').value = sid; loadData(); }
+});
+
+// ── データ取得 ──────────────────────────
+async function loadData() {
+  const sheetId = document.getElementById('sheet-id').value.trim();
+  if (!sheetId) { document.getElementById('config-details').open = true; return; }
+  localStorage.setItem('sheetId', sheetId);
+  showLoading();
+
+  const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(SHEET_NAME)}&range=B2:G500`;
+  try {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const text = await res.text();
+    if (text.includes('<!DOCTYPE') || text.includes('<html'))
+      throw new Error('シートが非公開か、IDが間違っています。「リンクを知っている全員が閲覧可」に設定してください。');
+
+    const rows = parseCSV(text).slice(1);
+    processData(rows);
+    document.getElementById('config-details').open = false;
+    document.getElementById('last-updated').textContent = '最終更新: ' + new Date().toLocaleString('ja-JP');
+  } catch(e) { showError(e.message); }
+}
+
+function parseCSV(text) {
+  const rows = [];
+  for (const line of text.split('\n')) {
+    if (!line.trim()) continue;
+    const cells = []; let cur = '', inQ = false;
+    for (let i = 0; i < line.length; i++) {
+      const c = line[i];
+      if (c === '"') { if (inQ && line[i+1]==='"') { cur+='"'; i++; } else inQ=!inQ; }
+      else if (c===',' && !inQ) { cells.push(cur.trim()); cur=''; }
+      else cur+=c;
+    }
+    cells.push(cur.trim()); rows.push(cells);
+  }
+  return rows;
+}
+
+// ── データ処理 ──────────────────────────
+function processData(rows) {
+  allTracks = [];
+  for (const row of rows) {
+    const name = (row[COL.フォーム提出名]||'').trim();
+    if (!name) continue;
+    const driveRaw = (row[COL.Driveリンク]||'').trim();
+    allTracks.push({
+      name,
+      pro:      (row[COL.Pro]||'').trim(),
+      turn:     (row[COL.出番]||'').trim(),
+      classId:  (row[COL.クラス判定ID]||'').trim(),
+      submitted: (row[COL.提出状況]||'').trim() === '提出完了',
+      driveRaw,
+      embedUrl: driveToEmbedUrl(driveRaw),
+    });
+  }
+  allTracks.sort((a,b) => {
+    const ta = parseInt(a.turn)||999, tb = parseInt(b.turn)||999;
+    return ta!==tb ? ta-tb : a.name.localeCompare(b.name,'ja');
+  });
+  renderAll();
+}
+
+// Google Drive → preview埋め込みURL
+function driveToEmbedUrl(url) {
+  if (!url) return null;
+  const m1 = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+  if (m1) return `https://drive.google.com/file/d/${m1[1]}/preview`;
+  const m2 = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+  if (m2) return `https://drive.google.com/file/d/${m2[1]}/preview`;
+  return null;
+}
+
+// ── 描画 ──────────────────────────────
+function renderAll() {
+  const total = allTracks.length;
+  const done  = allTracks.filter(t=>t.submitted).length;
+  const pct   = total ? Math.round(done/total*100) : 0;
+
+  document.getElementById('total-count').textContent   = total;
+  document.getElementById('done-count').textContent    = done;
+  document.getElementById('pending-count').textContent = total-done;
+  document.getElementById('prog-pct').textContent      = pct+'%';
+  document.getElementById('prog-fill').style.width     = pct+'%';
+  ['summary-bar','prog-section','filter-row'].forEach(id=>document.getElementById(id).style.display='');
+
+  openIdx = -1;
+  renderList();
+}
+
+function renderList() {
+  const filtered = allTracks.filter(t => {
+    if (currentFilter==='done') return t.submitted;
+    if (currentFilter==='pend') return !t.submitted;
+    return true;
+  });
+
+  if (!filtered.length) {
+    document.getElementById('main-area').innerHTML = `
+      <div class="state-msg">
+        <div class="icon">${currentFilter==='pend'?'🎉':'📭'}</div>
+        <div class="title">${currentFilter==='pend'?'全クラス提出済み！':'該当なし'}</div>
+      </div>`;
+    return;
+  }
+
+  const wrap = document.createElement('div');
+
+  // ヘッダー
+  const hdr = document.createElement('div');
+  hdr.className = 'list-header';
+  hdr.innerHTML = `<span>#</span><span>クラス名</span><span>ステータス</span><span></span>`;
+  wrap.appendChild(hdr);
+
+  const list = document.createElement('div');
+  list.className = 'tracklist';
+
+  filtered.forEach((t, i) => {
+    const globalIdx = allTracks.indexOf(t);
+    const hasAudio = !!t.embedUrl;
+
+    const item = document.createElement('div');
+    item.className = 'track-item' + (hasAudio ? '' : ' no-audio');
+    item.id = `item-${globalIdx}`;
+
+    item.innerHTML = `
+      <div class="track-row" onclick="${hasAudio ? `togglePlayer(${globalIdx})` : ''}">
+        <div class="track-num">${esc(t.turn || String(i+1))}</div>
+        <div class="track-info">
+          <div class="track-name">${esc(t.name)}</div>
+          <div class="track-sub">${esc(t.pro||'—')}${t.classId?' · '+esc(t.classId):''}</div>
+        </div>
+        <div>
+          <span class="badge ${t.submitted?'badge-done':'badge-pend'}">
+            ${t.submitted ? '✅ 完了' : '❌ 未提出'}
+          </span>
+        </div>
+        <div class="track-toggle">${hasAudio ? '▾' : '—'}</div>
+      </div>
+      <div class="player-embed" id="embed-${globalIdx}">
+        ${hasAudio
+          ? `<iframe id="iframe-${globalIdx}" src="" allow="autoplay" allowfullscreen loading="lazy"></iframe>`
+          : `<div class="no-audio-msg">音源リンクが未登録です</div>`
+        }
+      </div>
+    `;
+
+    list.appendChild(item);
+  });
+
+  wrap.appendChild(list);
+  document.getElementById('main-area').innerHTML = '';
+  document.getElementById('main-area').appendChild(wrap);
+}
+
+// ── プレイヤー開閉 ──────────────────────
+function togglePlayer(idx) {
+  const t = allTracks[idx];
+  if (!t || !t.embedUrl) return;
+
+  const item   = document.getElementById(`item-${idx}`);
+  const iframe = document.getElementById(`iframe-${idx}`);
+  const isOpen = item.classList.contains('open');
+
+  // 他を閉じる
+  if (openIdx >= 0 && openIdx !== idx) {
+    const prevItem   = document.getElementById(`item-${openIdx}`);
+    const prevIframe = document.getElementById(`iframe-${openIdx}`);
+    if (prevItem)   prevItem.classList.remove('open');
+    if (prevIframe) prevIframe.src = ''; // 再生停止
+    openIdx = -1;
+  }
+
+  if (isOpen) {
+    item.classList.remove('open');
+    iframe.src = '';
+    openIdx = -1;
+  } else {
+    item.classList.add('open');
+    iframe.src = t.embedUrl; // 展開時にsrcをセット（遅延読み込み）
+    openIdx = idx;
+    // 少し後にスクロール
+    setTimeout(() => item.scrollIntoView({ behavior:'smooth', block:'nearest' }), 50);
+  }
+}
+
+function setFilter(f, btn) {
+  currentFilter = f;
+  document.querySelectorAll('.fbtn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  openIdx = -1;
+  renderList();
+}
+
+function showLoading() {
+  ['summary-bar','prog-section','filter-row'].forEach(id=>document.getElementById(id).style.display='none');
+  document.getElementById('main-area').innerHTML=`<div class="state-msg"><div class="spinner"></div><div class="title">読み込み中…</div></div>`;
+}
+function showError(msg) {
+  ['summary-bar','prog-section','filter-row'].forEach(id=>document.getElementById(id).style.display='none');
+  document.getElementById('main-area').innerHTML=`<div class="state-msg"><div class="icon">⚠️</div><div class="title">エラー</div><div class="desc">${esc(msg)}</div></div>`;
+}
+function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+</script>
+</body>
+</html>
