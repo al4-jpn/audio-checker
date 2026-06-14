@@ -3,185 +3,99 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>音源提出ダッシュボード</title>
+<title>進行・提出状況ダッシュボード</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Space+Grotesk:wght@400;600;700&display=swap');
-
   :root {
-    --bg: #0a0a0f;
-    --surface: #13131a;
-    --surface2: #1a1a24;
-    --border: #2a2a3a;
-    --green: #1db954;
-    --green-bg: #0a2016;
-    --red: #f85149;
-    --red-bg: #200a0a;
-    --amber: #f0a500;
-    --text: #e8e8f0;
-    --text-muted: #6e6e8a;
-    --text-dim: #3a3a50;
+    --bg:#0a0a0f;--surface:#13131a;--surface2:#1a1a24;--border:#2a2a3a;
+    --green:#1db954;--green-bg:#0a2016;--red:#f85149;--red-bg:#200a0a;
+    --amber:#f0a500;--amber-bg:#2d1f00;--text:#e8e8f0;--text-muted:#6e6e8a;
   }
-
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  body { background: var(--bg); color: var(--text); font-family: 'Noto Sans JP', sans-serif; min-height: 100vh; padding-bottom: 60px; }
-
-  /* ── ヘッダー ── */
-  header {
-    background: rgba(10,10,15,0.96); backdrop-filter: blur(12px);
-    border-bottom: 1px solid var(--border);
-    padding: 14px 20px; display: flex; align-items: center; justify-content: space-between;
-    position: sticky; top: 0; z-index: 200; gap: 12px; flex-wrap: wrap;
-  }
-  .logo { display: flex; align-items: center; gap: 10px; }
-  .logo-icon { width: 30px; height: 30px; background: var(--green); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
-  .logo h1 { font-family: 'Space Grotesk', sans-serif; font-size: 15px; font-weight: 700; }
-  .logo h1 span { color: var(--green); }
-  .header-right { display: flex; align-items: center; gap: 10px; }
-  #last-updated { font-size: 11px; color: var(--text-muted); }
-  .btn-sm { background: none; border: 1px solid var(--border); color: var(--text-muted); padding: 5px 12px; border-radius: 20px; font-size: 12px; cursor: pointer; transition: all .15s; font-family: inherit; }
-  .btn-sm:hover { border-color: var(--green); color: var(--green); }
-
-  /* ── イベント切り替えタブ ── */
-  .event-selector-bar {
-    background: var(--surface);
-    border-bottom: 1px solid var(--border);
-    padding: 10px 16px;
-    display: flex;
-    gap: 8px;
-    overflow-x: auto;
-    scrollbar-width: none; /* Firefox */
-  }
-  .event-selector-bar::-webkit-scrollbar { display: none; /* Safari/Chrome */ }
-  .ev-tab {
-    background: none;
-    border: 1px solid var(--border);
-    color: var(--text-muted);
-    padding: 6px 14px;
-    border-radius: 6px;
-    font-size: 12px;
-    font-weight: 500;
-    cursor: pointer;
-    white-space: nowrap;
-    transition: all .15s;
-  }
-  .ev-tab:hover { border-color: var(--text-muted); color: var(--text); }
-  .ev-tab.active { background: var(--surface2); border-color: var(--green); color: var(--green); font-weight: 700; }
-
-  /* ── コンテナ ── */
-  .container { max-width: 900px; margin: 0 auto; padding: 24px 16px; }
-
-  /* ── サマリー ── */
-  .summary-bar { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-bottom: 18px; }
-  .sc { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 12px 16px; }
-  .sc .lbl { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: .1em; margin-bottom: 4px; }
-  .sc .val { font-family: 'Space Grotesk', sans-serif; font-size: 26px; font-weight: 700; line-height: 1; }
-  .sc.total .val { color: var(--text); }
-  .sc.done  .val { color: var(--green); }
-  .sc.pend  .val { color: var(--red); }
-
-  .prog-section { margin-bottom: 16px; }
-  .prog-label { display: flex; justify-content: space-between; font-size: 11px; color: var(--text-muted); margin-bottom: 6px; }
-  .prog-track { height: 4px; background: var(--surface2); border-radius: 2px; overflow: hidden; }
-  .prog-fill { height: 100%; background: var(--green); border-radius: 2px; transition: width .6s ease; width: 0%; }
-
-  /* ── 検索 & フィルター ── */
-  .search-filter { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; align-items: center; }
-
-  .search-wrap {
-    flex: 1; min-width: 180px;
-    position: relative;
-  }
-  .search-wrap .icon {
-    position: absolute; left: 11px; top: 50%; transform: translateY(-50%);
-    font-size: 14px; color: var(--text-muted); pointer-events: none;
-  }
-  #search-input {
-    width: 100%; background: var(--surface); border: 1px solid var(--border);
-    color: var(--text); padding: 8px 12px 8px 34px;
-    border-radius: 20px; font-size: 13px; font-family: inherit;
-    transition: border-color .15s;
-  }
-  #search-input:focus { outline: none; border-color: var(--green); }
-  #search-input::placeholder { color: var(--text-muted); }
-
-  .filter-row { display: flex; gap: 6px; flex-wrap: wrap; }
-  .fbtn { background: none; border: 1px solid var(--border); color: var(--text-muted); padding: 5px 12px; border-radius: 20px; font-size: 12px; cursor: pointer; transition: all .15s; font-family: inherit; white-space: nowrap; }
-  .fbtn:hover, .fbtn.active { background: var(--green); color: #000; border-color: var(--green); font-weight: 700; }
-
-  /* ── トラックリスト ── */
-  .list-header {
-    display: grid; grid-template-columns: 36px 1fr 90px 32px;
-    padding: 6px 12px; border-bottom: 1px solid var(--border);
-    font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: .1em;
-    margin-bottom: 4px;
-  }
-
-  .tracklist { display: flex; flex-direction: column; }
-  .track-item { border-radius: 8px; overflow: hidden; margin-bottom: 2px; }
-
-  .track-row {
-    display: grid; grid-template-columns: 36px 1fr 90px 32px;
-    align-items: start; gap: 8px;
-    padding: 10px 12px; cursor: pointer;
-    transition: background .12s; border-radius: 8px;
-  }
-  .track-row:hover { background: var(--surface2); }
-  .track-item.open .track-row { background: var(--surface2); border-radius: 8px 8px 0 0; }
-
-  .track-num {
-    font-family: 'Space Grotesk', sans-serif; font-size: 13px;
-    color: var(--text-muted); text-align: center;
-    padding-top: 2px;
-  }
-  .track-item.open .track-num { color: var(--green); }
-
-  .track-info { min-width: 0; }
-  .track-name {
-    font-size: 14px; font-weight: 500; color: var(--text);
-    line-height: 1.4;
-    word-break: break-all;
-  }
-  .track-item.open .track-name { color: var(--green); }
-  .track-sub { font-size: 11px; color: var(--text-muted); margin-top: 3px; }
-
-  .track-status { padding-top: 2px; }
-  .badge { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 10px; font-weight: 700; white-space: nowrap; }
-  .badge-done { background: var(--green-bg); color: var(--green); border: 1px solid var(--green); }
-  .badge-pend { background: var(--red-bg);   color: var(--red);   border: 1px solid var(--red); }
-
-  .track-toggle { text-align: center; font-size: 16px; color: var(--text-muted); transition: transform .25s; padding-top: 2px; }
-  .track-item.open .track-toggle { transform: rotate(180deg); color: var(--green); }
-  .no-audio .track-toggle { opacity: .25; cursor: not-allowed; }
-
-  /* ── 埋め込みプレイヤー ── */
-  .player-embed {
-    max-height: 0; overflow: hidden;
-    transition: max-height .35s cubic-bezier(.4,0,.2,1);
-    background: var(--surface2); border-radius: 0 0 8px 8px;
-  }
-  .track-item.open .player-embed { max-height: 100px; }
-  .player-embed iframe { display: block; width: 100%; height: 80px; border: none; border-top: 1px solid var(--border); }
-  .no-audio-msg { padding: 14px 16px; font-size: 12px; color: var(--text-muted); border-top: 1px solid var(--border); }
-
-  mark { background: rgba(240,165,0,0.3); color: var(--text); border-radius: 2px; padding: 0 1px; }
-  .no-results { text-align: center; padding: 40px 20px; color: var(--text-muted); font-size: 14px; }
-
-  /* ── 状態 ── */
-  .state-msg { text-align: center; padding: 60px 20px; color: var(--text-muted); }
-  .state-msg .icon { font-size: 44px; margin-bottom: 12px; }
-  .state-msg .title { font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
-  .state-msg .desc { font-size: 13px; line-height: 1.8; }
-  .spinner { width: 36px; height: 36px; border: 3px solid var(--border); border-top-color: var(--green); border-radius: 50%; animation: spin .8s linear infinite; margin: 0 auto 14px; }
-  @keyframes spin { to { transform: rotate(360deg); } }
-
-  @media (max-width: 480px) {
-    .list-header { grid-template-columns: 28px 1fr 72px 24px; font-size: 9px; }
-    .track-row   { grid-template-columns: 28px 1fr 72px 24px; padding: 9px 10px; }
-    .track-name  { font-size: 13px; }
-    .sc .val { font-size: 22px; }
-    .summary-bar { gap: 6px; }
-    .sc { padding: 10px 12px; }
-  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--text);font-family:'Noto Sans JP',sans-serif;min-height:100vh;padding-bottom:60px;}
+  header{background:rgba(10,10,15,0.96);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:14px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200;gap:12px;flex-wrap:wrap;}
+  .logo{display:flex;align-items:center;gap:10px;}
+  .logo-icon{width:30px;height:30px;background:var(--green);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;color:#000;font-weight:bold;}
+  .logo h1{font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:700;}
+  .logo h1 span{color:var(--green);}
+  .header-right{display:flex;align-items:center;gap:10px;}
+  #last-updated{font-size:11px;color:var(--text-muted);}
+  .btn-sm{background:none;border:1px solid var(--border);color:var(--text-muted);padding:5px 12px;border-radius:20px;font-size:12px;cursor:pointer;transition:all .15s;font-family:inherit;}
+  .btn-sm:hover{border-color:var(--green);color:var(--green);}
+  .event-selector-bar{background:var(--surface);border-bottom:1px solid var(--border);padding:10px 16px;display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;}
+  .event-selector-bar::-webkit-scrollbar{display:none;}
+  .ev-tab{background:none;border:1px solid var(--border);color:var(--text-muted);padding:6px 14px;border-radius:6px;font-size:12px;font-weight:500;cursor:pointer;white-space:nowrap;transition:all .15s;}
+  .ev-tab:hover{border-color:var(--text-muted);color:var(--text);}
+  .ev-tab.active{background:var(--surface2);border-color:var(--green);color:var(--green);font-weight:700;}
+  .container{max-width:950px;margin:0 auto;padding:24px 16px;}
+  .summary-bar{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px;}
+  .sc{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px 16px;}
+  .sc .lbl{font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px;}
+  .sc .val{font-family:'Space Grotesk',sans-serif;font-size:26px;font-weight:700;line-height:1;}
+  .sc.total .val{color:var(--text);}
+  .sc.done .val{color:var(--green);}
+  .sc.pend .val{color:var(--red);}
+  .prog-section{margin-bottom:16px;}
+  .prog-label{display:flex;justify-content:space-between;font-size:11px;color:var(--text-muted);margin-bottom:6px;}
+  .prog-track{height:4px;background:var(--surface2);border-radius:2px;overflow:hidden;}
+  .prog-fill{height:100%;background:var(--green);border-radius:2px;transition:width .6s ease;width:0%;}
+  .search-filter{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;align-items:center;}
+  .search-wrap{flex:1;min-width:180px;position:relative;}
+  .search-wrap .icon{position:absolute;left:11px;top:50%;transform:translateY(-50%);font-size:14px;color:var(--text-muted);pointer-events:none;}
+  #search-input{width:100%;background:var(--surface);border:1px solid var(--border);color:var(--text);padding:8px 12px 8px 34px;border-radius:20px;font-size:13px;font-family:inherit;transition:border-color .15s;}
+  #search-input:focus{outline:none;border-color:var(--green);}
+  .filter-row{display:flex;gap:6px;flex-wrap:wrap;}
+  .fbtn{background:none;border:1px solid var(--border);color:var(--text-muted);padding:5px 12px;border-radius:20px;font-size:12px;cursor:pointer;transition:all .15s;font-family:inherit;white-space:nowrap;}
+  .fbtn:hover,.fbtn.active{background:var(--green);color:#000;border-color:var(--green);font-weight:700;}
+  .fbtn.btn-alert:hover,.fbtn.btn-alert.active{background:var(--amber);color:#000;border-color:var(--amber);}
+  .list-header{display:grid;grid-template-columns:45px 1fr 180px 32px;padding:6px 12px;border-bottom:1px solid var(--border);font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px;}
+  .tracklist{display:flex;flex-direction:column;}
+  .track-item{border-radius:8px;overflow:hidden;margin-bottom:6px;background:var(--surface);border:1px solid var(--border);}
+  .track-row{display:grid;grid-template-columns:45px 1fr 180px 32px;align-items:center;gap:8px;padding:12px;cursor:pointer;transition:background .12s;}
+  .track-row:hover{background:var(--surface2);}
+  .track-item.open .track-row{background:var(--surface2);border-bottom:1px solid var(--border);}
+  .track-num{font-family:'Space Grotesk',sans-serif;font-size:12px;color:var(--text-muted);text-align:center;}
+  .track-item.open .track-num{color:var(--green);}
+  .track-info{min-width:0;}
+  .track-name{font-size:14px;font-weight:500;color:var(--text);line-height:1.4;word-break:break-all;}
+  .track-sub{font-size:11px;color:var(--text-muted);margin-top:4px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+  .id-warn-tag{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber);padding:0px 6px;border-radius:4px;font-size:9px;font-weight:bold;}
+  .submission-status-group{display:flex;flex-direction:column;gap:4px;justify-content:center;}
+  .status-item{display:flex;align-items:center;justify-content:space-between;font-size:11px;padding:2px 6px;border-radius:4px;background:rgba(0,0,0,0.2);}
+  .status-label{color:var(--text-muted);font-size:10px;}
+  .status-dot{font-weight:bold;font-size:11px;}
+  .status-dot.done{color:var(--green);}
+  .status-dot.pend{color:var(--red);}
+  .track-toggle{text-align:center;font-size:16px;color:var(--text-muted);transition:transform .25s;}
+  .track-item.open .track-toggle{transform:rotate(180deg);color:var(--green);}
+  .player-embed{max-height:0;overflow:hidden;transition:max-height .35s cubic-bezier(.4,0,.2,1);background:var(--surface2);}
+  .track-item.open .player-embed{max-height:1200px;}
+  .detail-panel{padding:16px;font-size:12px;background:#121318;border-left:4px solid #34c759;}
+  .timing-row{margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid #25262e;display:flex;align-items:center;gap:8px;font-size:13px;}
+  .timing-label{color:var(--text-muted);}
+  .timing-val{color:var(--amber);font-weight:bold;font-size:15px;}
+  .task-card{background:rgba(0,0,0,0.25);border:1px solid var(--border);border-radius:8px;padding:14px;margin-bottom:10px;}
+  .task-card-header{display:flex;align-items:center;gap:8px;margin-bottom:10px;font-size:13px;font-weight:bold;color:#fff;}
+  .task-badge{font-size:11px;padding:2px 8px;border-radius:4px;font-weight:normal;}
+  .task-badge.done{background:var(--green-bg);color:var(--green);border:1px solid var(--green);}
+  .task-badge.pend{background:var(--red-bg);color:var(--red);border:1px solid var(--red);}
+  /* 音源プレイヤー */
+  .inline-audio-player{background:rgba(29,185,84,0.08);border:1px solid rgba(29,185,84,0.3);border-radius:6px;padding:10px 14px;display:flex;align-items:center;gap:12px;}
+  .inline-audio-player audio{flex:1;min-width:200px;height:36px;border-radius:4px;}
+  /* 画像 */
+  .inline-image-viewer{text-align:center;background:rgba(0,0,0,0.3);border-radius:6px;padding:8px;}
+  .inline-image-viewer img{max-width:100%;max-height:400px;border-radius:4px;border:1px solid var(--border);}
+  /* iframeプレビュー（音源以外） */
+  .gdrive-preview{width:100%;height:320px;border:none;border-radius:6px;border:1px solid var(--border);display:block;}
+  /* リンクボタン */
+  .open-link-btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:rgba(29,185,84,0.12);color:var(--green);text-decoration:none;border-radius:6px;border:1px solid rgba(29,185,84,0.4);font-size:12px;font-weight:bold;transition:background .15s;margin-top:6px;}
+  .open-link-btn:hover{background:rgba(29,185,84,0.22);}
+  .no-data-msg{font-size:12px;color:var(--text-muted);font-style:italic;padding:6px 0;}
+  mark{background:rgba(240,165,0,0.3);color:var(--text);border-radius:2px;padding:0 1px;}
+  .no-results{text-align:center;padding:40px 20px;color:var(--text-muted);font-size:14px;}
+  .state-msg{text-align:center;padding:60px 20px;color:var(--text-muted);}
+  .state-msg .spinner{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--green);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 14px;}
+  @keyframes spin{to{transform:rotate(360deg);}}
 </style>
 </head>
 <body>
@@ -189,7 +103,7 @@
 <header>
   <div class="logo">
     <div class="logo-icon">♪</div>
-    <h1>音源提出<span>ダッシュボード</span></h1>
+    <h1>進行・提出状況<span>ダッシュボード</span></h1>
   </div>
   <div class="header-right">
     <span id="last-updated"></span>
@@ -202,353 +116,368 @@
 <div class="container">
   <div class="summary-bar" id="summary-bar" style="display:none">
     <div class="sc total"><div class="lbl">総クラス数</div><div class="val" id="total-count">—</div></div>
-    <div class="sc done"> <div class="lbl">✅ 完了</div><div class="val" id="done-count">—</div></div>
-    <div class="sc pend"> <div class="lbl">❌ 未提出</div><div class="val" id="pending-count">—</div></div>
+    <div class="sc done"><div class="lbl">✅ 完全完了</div><div class="val" id="done-count">—</div></div>
+    <div class="sc pend"><div class="lbl">❌ 未完了クラス</div><div class="val" id="pending-count">—</div></div>
   </div>
-
   <div class="prog-section" id="prog-section" style="display:none">
-    <div class="prog-label"><span>提出進捗</span><span id="prog-pct">0%</span></div>
+    <div class="prog-label"><span>タスク全体の完了進捗</span><span id="prog-pct">0%</span></div>
     <div class="prog-track"><div class="prog-fill" id="prog-fill"></div></div>
   </div>
-
   <div class="search-filter" id="search-filter" style="display:none">
     <div class="search-wrap">
       <span class="icon">🔍</span>
-      <input type="search" id="search-input" placeholder="名前・クラス名で検索…" oninput="onSearch()" />
+      <input type="search" id="search-input" placeholder="出番・クラス名・IDで検索…" oninput="onSearch()" />
     </div>
     <div class="filter-row">
       <button class="fbtn active" onclick="setFilter('all',this)">すべて</button>
-      <button class="fbtn" onclick="setFilter('done',this)">✅ 完了</button>
-      <button class="fbtn" onclick="setFilter('pend',this)">❌ 未提出</button>
+      <button class="fbtn" onclick="setFilter('done',this)">✅ 全完了</button>
+      <button class="fbtn" onclick="setFilter('pend',this)">❌ 未完了あり</button>
+      <button class="fbtn btn-alert" onclick="setFilter('id-mismatch',this)">⚠️ ID不一致</button>
     </div>
   </div>
-
   <div id="main-area">
-    <div class="state-msg">
-      <div class="spinner"></div>
-      <div class="title">イベント情報をロード中…</div>
-    </div>
+    <div class="state-msg"><div class="spinner"></div><div>イベント情報をロード中…</div></div>
   </div>
 </div>
 
 <script>
-// 音源提出状況シートの列マッピング
-const COL = { Pro:0, 出番:1, フォーム提出名:2, クラス判定ID:3, 提出状況:4, Driveリンク:5 };
+const COL={Pro:0,出番:1,フォーム提出名:2,クラス判定ID:3,種別:4,提出状況:5,音出し:6,データ:7};
+const MASTER_SHEET_ID='1b7g-oboLH1IJfVv_rGZDgz0hwAWMXhhBMXgtItnzKC0';
+const MASTER_SHEET_NAME='ID一覧';
 
-// ─── 【重要】ここに新しく作った「DBスプレッドシート」のIDを入れてください ───
-const MASTER_SHEET_ID = '1b7g-oboLH1IJfVv_rGZDgz0hwAWMXhhBMXgtItnzKC0';
-const MASTER_SHEET_NAME = 'ID一覧シート';
+let CONFIG={events:[]};
+let currentSheetId='';
+let currentEventIdx=0;
+let allTracks=[];
+let currentFilter='all';
+let currentSearch='';
+let openIdx=-1;
 
-let CONFIG = { events: [] };
-let currentSheetId = '';
-let currentEventIdx = 0;
-let allTracks = [];
-let currentFilter = 'all';
-let currentSearch = '';
-let openIdx = -1;
+// 種別ラベルが音源かどうか判定
+function isAudioTask(label) {
+  return label.includes('音源') || label.includes('オーディオ') || label.includes('BGM') || label.includes('SE');
+}
 
-window.addEventListener('DOMContentLoaded', () => {
-  loadMasterConfig();
-});
+// GoogleドライブURLからファイルIDを抽出してプレビューURLに変換
+function toGDrivePreviewUrl(url) {
+  const m1 = url.match(/\/file\/d\/([^\/\?]+)/);
+  const m2 = url.match(/[?&]id=([^&]+)/);
+  const id = m1 ? m1[1] : (m2 ? m2[1] : null);
+  return id ? `https://drive.google.com/file/d/${id}/preview` : url;
+}
 
-// 1. 最初のリクエスト：マスターシートからイベント一覧（DB）を読み込む
+// GoogleドライブURLから直接ダウンロードURLに変換（audioタグ用）
+function toGDriveDirectUrl(url) {
+  const m1 = url.match(/\/file\/d\/([^\/\?]+)/);
+  const m2 = url.match(/[?&]id=([^&]+)/);
+  const id = m1 ? m1[1] : (m2 ? m2[1] : null);
+  return id ? `https://drive.google.com/uc?export=download&id=${id}` : url;
+}
+
+function isGDrive(url) {
+  return url.includes('drive.google.com') || url.includes('docs.google.com');
+}
+
+function isDirectAudio(url) {
+  return /\.(mp3|wav|ogg|m4a|aac|flac)(\?|$)/i.test(url);
+}
+
+function isDirectImage(url) {
+  return /\.(png|jpg|jpeg|gif|webp|svg)(\?|$)/i.test(url);
+}
+
+// ★ 種別ラベルを見てウィジェットを振り分ける
+function buildFileWidget(task) {
+  const url = (task.link || '').trim();
+  if (!url) return '<div class="no-data-msg">⚠️ データリンクはまだ登録されていません。</div>';
+
+  const isAudio = isAudioTask(task.label);
+
+  // 直接音声ファイル
+  if (isDirectAudio(url)) {
+    return `<div class="inline-audio-player">
+      <span style="font-size:18px;">🎵</span>
+      <audio controls preload="none" style="flex:1;min-width:200px;">
+        <source src="${esc(url)}">
+      </audio>
+    </div>`;
+  }
+
+  // 直接画像ファイル
+  if (isDirectImage(url)) {
+    return `<div class="inline-image-viewer">
+      <img src="${esc(url)}" alt="${esc(task.label)}" loading="lazy" />
+    </div>`;
+  }
+
+  // Googleドライブ
+  if (isGDrive(url)) {
+    if (isAudio) {
+      // 音源 → audioプレイヤーのみ
+      const directUrl = toGDriveDirectUrl(url);
+      return `<div class="inline-audio-player">
+        <span style="font-size:18px;">🎵</span>
+        <audio controls preload="none" style="flex:1;min-width:200px;">
+          <source src="${esc(directUrl)}">
+        </audio>
+      </div>
+      <a class="open-link-btn" href="${esc(url)}" target="_blank">↗ Googleドライブで開く</a>`;
+    } else {
+      // 音源以外 → iframeプレビューのみ
+      const previewUrl = toGDrivePreviewUrl(url);
+      return `<iframe class="gdrive-preview" src="${esc(previewUrl)}" allowfullscreen loading="lazy"></iframe>
+      <a class="open-link-btn" href="${esc(url)}" target="_blank">↗ Googleドライブで開く</a>`;
+    }
+  }
+
+  // その他URL → リンクボタンのみ
+  return `<a class="open-link-btn" href="${esc(url)}" target="_blank">↗ ファイルを開く</a>`;
+}
+
+window.addEventListener('DOMContentLoaded',()=>{ loadMasterConfig(); });
+
 async function loadMasterConfig() {
   showLoading('イベント構成を読み込み中…');
-  // B2起点の指定（B2:D500でイベント名、ID、シート名を取得）
-  const url = `https://docs.google.com/spreadsheets/d/${MASTER_SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(MASTER_SHEET_NAME)}&range=B2:D500`;
-  
+  const url=`https://docs.google.com/spreadsheets/d/${MASTER_SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(MASTER_SHEET_NAME)}&range=B2:D500`;
   try {
-    const res = await fetch(url);
-    if (!res.ok) throw new Error(`DBシートへのアクセスに失敗しました (HTTP ${res.status})`);
-    const text = await res.text();
-    
-    if (text.includes('<!DOCTYPE') || text.includes('<html')) {
-      throw new Error('マスターシートが非公開設定になっています。「リンクを知っている全員が閲覧可」に変更してください。');
-    }
-    
-    const rows = parseCSV(text);
-    CONFIG.events = [];
-    
-    // スプシのデータを行ごとに処理（ヘッダー行を考慮して1行目から取得）
-    rows.forEach(row => {
-      const label = (row[0] || '').trim();
-      const sheetId = (row[1] || '').trim();
-      const sheetName = (row[2] || '').trim();
-      
-      // 必要な情報が揃っている行だけをイベントとして追加
-      if (label && sheetId && sheetName && label !== 'イベント名') {
-        CONFIG.events.push({ label, sheetId, sheetName });
-      }
+    let res=await fetch(url);
+    if(!res.ok) throw new Error(`マスターシートへのアクセスに失敗しました (HTTP ${res.status})`);
+    const text=await res.text();
+    if(text.includes('<!DOCTYPE')||text.includes('<html')) throw new Error('マスターシートの共有設定を「リンクを知っている全員が閲覧可」に変更してください。');
+    const rows=parseCSV(text);
+    CONFIG.events=[];
+    rows.forEach(row=>{
+      const label=(row[0]||'').trim();
+      const sheetId=(row[1]||'').trim();
+      const sheetName=(row[2]||'').trim();
+      if(label&&sheetId&&label!=='イベント名') CONFIG.events.push({label,sheetId,sheetName});
     });
-
-    if (CONFIG.events.length === 0) {
-      throw new Error('管理スプシ（ID一覧シート）に有効なイベント情報が見つかりませんでした。データがB2セル以降に正しく入力されているか確認してください。');
-    }
-
-    // 最初のイベントをアクティブにして音源データを読み込む
-    currentEventIdx = 0;
-    currentSheetId = CONFIG.events[0].sheetId;
-    
+    if(CONFIG.events.length===0) throw new Error('有効なイベント情報（B2セル以降）が見つかりません。');
     renderEventTabs();
+    currentEventIdx=0;
+    currentSheetId=CONFIG.events[0].sheetId;
     loadEventData();
-    
-  } catch (e) {
-    showError(e.message);
-  }
+  } catch(e){ showError(e.message); }
 }
 
-// 2. イベント切り替えタブの描画
 function renderEventTabs() {
-  const bar = document.getElementById('event-tab-bar');
-  if (!CONFIG.events || CONFIG.events.length <= 1) {
-    bar.style.display = 'none';
-    return;
-  }
-  bar.innerHTML = '';
-  CONFIG.events.forEach((ev, idx) => {
-    const btn = document.createElement('button');
-    btn.className = `ev-tab ${idx === currentEventIdx ? 'active' : ''}`;
-    btn.textContent = ev.label;
-    btn.onclick = () => switchEvent(idx);
+  const bar=document.getElementById('event-tab-bar');
+  if(!CONFIG.events||CONFIG.events.length<=1){bar.style.display='none';return;}
+  bar.innerHTML='';
+  CONFIG.events.forEach((ev,idx)=>{
+    const btn=document.createElement('button');
+    btn.className=`ev-tab ${idx===currentEventIdx?'active':''}`;
+    btn.textContent=ev.label;
+    btn.onclick=()=>switchEvent(idx);
     bar.appendChild(btn);
   });
-  bar.style.display = 'flex';
+  bar.style.display='flex';
 }
 
-// 3. タブ切り替え処理
 function switchEvent(idx) {
-  if (currentEventIdx === idx) return;
-  currentEventIdx = idx;
-  currentSheetId = CONFIG.events[idx].sheetId;
-  
-  document.querySelectorAll('.ev-tab').forEach((btn, i) => {
-    btn.classList.toggle('active', i === idx);
-  });
-  
-  // 検索・フィルター状態のクリア
-  document.getElementById('search-input').value = '';
-  currentSearch = '';
-  currentFilter = 'all';
-  document.querySelectorAll('.fbtn').forEach(b => b.classList.toggle('active', b.getAttribute('onclick').includes('all')));
-
+  if(currentEventIdx===idx) return;
+  currentEventIdx=idx;
+  currentSheetId=CONFIG.events[idx].sheetId;
+  document.querySelectorAll('.ev-tab').forEach((btn,i)=>btn.classList.toggle('active',i===idx));
+  document.getElementById('search-input').value='';
+  currentSearch='';currentFilter='all';
+  document.querySelectorAll('.fbtn').forEach(b=>b.classList.toggle('active',b.getAttribute('onclick').includes('all')));
   loadEventData();
 }
 
-// 4. 各イベントの提出状況シートからデータを取得
 async function loadEventData() {
-  showLoading('音源データを同期中…');
-  const activeEvent = CONFIG.events[currentEventIdx];
-  const sheetName = activeEvent ? activeEvent.sheetName : '音源提出状況';
-  
-  // 各イベントの提出用シートからB2:G500を取得
-  const url = `https://docs.google.com/spreadsheets/d/${currentSheetId}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetName)}&range=B2:G500`;
-  
+  showLoading('データを同期中…');
+  const activeEvent=CONFIG.events[currentEventIdx];
+  const sheetName=activeEvent?activeEvent.sheetName:'';
+  let url=`https://docs.google.com/spreadsheets/d/${currentSheetId}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetName)}&range=B1:I500`;
+  if(!sheetName||sheetName==='—'||sheetName==='なし') url=`https://docs.google.com/spreadsheets/d/${currentSheetId}/gviz/tq?tqx=out:csv&range=B1:I500`;
   try {
-    const res = await fetch(url);
-    if (!res.ok) throw new Error(`提出状況シートを取得できません (HTTP ${res.status})`);
-    const text = await res.text();
-    if (text.includes('<!DOCTYPE') || text.includes('<html')) {
-      throw new Error(`選択されたイベント「${activeEvent.label}」のシートが非公開、またはIDが間違っています。`);
+    let res=await fetch(url);
+    if(res.status===404&&sheetName){
+      res=await fetch(`https://docs.google.com/spreadsheets/d/${currentSheetId}/gviz/tq?tqx=out:csv&range=B1:I500`);
     }
-    const rows = parseCSV(text).slice(1); // ヘッダーをスキップ
-    processData(rows);
-    document.getElementById('last-updated').textContent = '同期: ' + new Date().toLocaleTimeString('ja-JP', {hour: '2-digit', minute:'2-digit'});
-  } catch(e) { 
-    showError(e.message); 
-  }
+    if(!res.ok) throw new Error(`シートを取得できません (HTTP ${res.status})`);
+    const text=await res.text();
+    if(text.includes('<!DOCTYPE')||text.includes('<html')) throw new Error('シートへのアクセス権がありません。');
+    const rows=parseCSV(text);
+    if(rows.length>0&&(rows[0][0]==='Pro'||rows[0][1]==='出番')) processGroupedData(rows.slice(1));
+    else processGroupedData(rows);
+    document.getElementById('last-updated').textContent='同期: '+new Date().toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'});
+  } catch(e){ showError(e.message); }
 }
 
-// 手動リフレッシュボタン
-function refreshData() {
-  loadMasterConfig();
-}
-
-// ── 以下、以前と同様のロジック・レンダリング処理 ──
-function parseCSV(text) {
-  const rows = [];
-  for (const line of text.split('\n')) {
-    if (!line.trim()) continue;
-    const cells = []; let cur = '', inQ = false;
-    for (let i = 0; i < line.length; i++) {
-      const c = line[i];
-      if (c==='"') { if (inQ && line[i+1]==='"') { cur+='"'; i++; } else inQ=!inQ; }
-      else if (c===',' && !inQ) { cells.push(cur.trim()); cur=''; }
-      else cur+=c;
+function processGroupedData(rows) {
+  const groups={};const orderList=[];
+  rows.forEach(row=>{
+    const name=(row[COL.フォーム提出名]||'').trim();
+    if(!name||name==='フォーム提出名'||name==='リンクの書き換えなど') return;
+    if(!groups[name]){
+      groups[name]={name,pro:(row[COL.Pro]||'').trim(),turn:(row[COL.出番]||'').trim(),classId:(row[COL.クラス判定ID]||'').trim(),soundTiming:'—',idMismatch:false,tasks:[]};
+      orderList.push(name);
     }
-    cells.push(cur.trim()); rows.push(cells);
-  }
-  return rows;
-}
-
-function processData(rows) {
-  allTracks = [];
-  for (const row of rows) {
-    const name = (row[COL.フォーム提出名]||'').trim();
-    if (!name) continue;
-    const driveRaw = (row[COL.Driveリンク]||'').trim();
-    allTracks.push({
-      name,
-      pro:      (row[COL.Pro]||'').trim(),
-      turn:     (row[COL.出番]||'').trim(),
-      classId:  (row[COL.クラス判定ID]||'').trim(),
-      submitted: (row[COL.提出状況]||'').trim() === '提出完了',
-      driveRaw,
-      embedUrl: driveToEmbedUrl(driveRaw),
-    });
-  }
-  allTracks.sort((a,b) => {
-    const ta=parseInt(a.turn)||999, tb=parseInt(b.turn)||999;
-    return ta!==tb ? ta-tb : a.name.localeCompare(b.name,'ja');
+    const type=(row[COL.種別]||'').trim();
+    const status=(row[COL.提出状況]||'').trim();
+    const isDone=(status==='提出完了');
+    const fileLink=(row[COL.データ]||'').trim();
+    const cid=(row[COL.クラス判定ID]||'').trim();
+    if(!cid||cid.length<3||cid.includes('打ち間違い')||cid.includes('未付与')||cid==='—') groups[name].idMismatch=true;
+    if((row[COL.音出し]||'').trim()&&(groups[name].soundTiming==='—'||type.includes('音源'))) groups[name].soundTiming=(row[COL.音出し]||'').trim();
+    if(type) groups[name].tasks.push({label:type,isDone,link:fileLink});
   });
+  allTracks=orderList.map(name=>groups[name]);
   renderAll();
 }
 
-function driveToEmbedUrl(url) {
-  if (!url) return null;
-  const m1 = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
-  if (m1) return `https://drive.google.com/file/d/${m1[1]}/preview`;
-  const m2 = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
-  if (m2) return `https://drive.google.com/file/d/${m2[1]}/preview`;
-  return null;
-}
-
 function renderAll() {
-  const total = allTracks.length;
-  const done  = allTracks.filter(t=>t.submitted).length;
-  const pct   = total ? Math.round(done/total*100) : 0;
-
-  document.getElementById('total-count').textContent   = total;
-  document.getElementById('done-count').textContent    = done;
-  document.getElementById('pending-count').textContent = total-done;
-  document.getElementById('prog-pct').textContent      = pct+'%';
-  document.getElementById('prog-fill').style.width     = pct+'%';
-  ['summary-bar','prog-section','search-filter'].forEach(id=> {
-    const el = document.getElementById(id);
-    if(el) el.style.display='';
-  });
-  openIdx = -1;
-  renderList();
+  const total=allTracks.length;
+  const done=allTracks.filter(t=>t.tasks.length>0&&t.tasks.every(task=>task.isDone)).length;
+  let totalTasks=0,doneTasks=0;
+  allTracks.forEach(t=>{totalTasks+=t.tasks.length;t.tasks.forEach(task=>{if(task.isDone)doneTasks++;});});
+  const pct=totalTasks?Math.round((doneTasks/totalTasks)*100):0;
+  document.getElementById('total-count').textContent=total;
+  document.getElementById('done-count').textContent=done;
+  document.getElementById('pending-count').textContent=total-done;
+  document.getElementById('prog-pct').textContent=pct+'%';
+  document.getElementById('prog-fill').style.width=pct+'%';
+  ['summary-bar','prog-section','search-filter'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='';});
+  openIdx=-1;renderList();
 }
 
 function getFiltered() {
-  const q = currentSearch.trim().toLowerCase();
-  return allTracks.filter(t => {
-    const matchFilter = currentFilter==='all' ? true : currentFilter==='done' ? t.submitted : !t.submitted;
-    if (!matchFilter) return false;
-    if (!q) return true;
-    return t.name.toLowerCase().includes(q) || t.pro.toLowerCase().includes(q) || t.classId.toLowerCase().includes(q);
+  const q=currentSearch.trim().toLowerCase();
+  return allTracks.filter(t=>{
+    const isAllDone=t.tasks.length>0&&t.tasks.every(task=>task.isDone);
+    let matchFilter=true;
+    if(currentFilter==='done') matchFilter=isAllDone;
+    else if(currentFilter==='pend') matchFilter=!isAllDone;
+    else if(currentFilter==='id-mismatch') matchFilter=t.idMismatch;
+    if(!matchFilter) return false;
+    if(!q) return true;
+    return t.name.toLowerCase().includes(q)||t.pro.toLowerCase().includes(q)||t.classId.toLowerCase().includes(q)||t.turn.toLowerCase().includes(q);
   });
 }
 
-function highlight(text, query) {
-  if (!query) return esc(text);
-  const escaped = query.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
-  return esc(text).replace(new RegExp(`(${escaped})`, 'gi'), '<mark>$1</mark>');
-}
-
 function renderList() {
-  const filtered = getFiltered();
-  const q = currentSearch.trim().toLowerCase();
-
-  if (!filtered.length) {
-    document.getElementById('main-area').innerHTML = `<div class="no-results">${q ? `「${esc(currentSearch)}」に一致するデータが見つかりません` : '登録されているクラスがありません'}</div>`;
+  const filtered=getFiltered();
+  const q=currentSearch.trim().toLowerCase();
+  if(!filtered.length){
+    document.getElementById('main-area').innerHTML=`<div class="no-results">${q?`「${esc(currentSearch)}」に一致するクラスが見つかりません`:'条件に該当するクラスがありません'}</div>`;
     return;
   }
-
-  const wrap = document.createElement('div');
-  const hdr = document.createElement('div');
-  hdr.className = 'list-header';
-  hdr.innerHTML = `<span>#</span><span>クラス名</span><span>状態</span><span></span>`;
+  const wrap=document.createElement('div');
+  const hdr=document.createElement('div');
+  hdr.className='list-header';
+  hdr.innerHTML='<span>出番</span><span>クラス情報</span><span>各種提出状況</span><span></span>';
   wrap.appendChild(hdr);
+  const list=document.createElement('div');
+  list.className='tracklist';
 
-  const list = document.createElement('div');
-  list.className = 'tracklist';
+  filtered.forEach(t=>{
+    const globalIdx=allTracks.indexOf(t);
+    const item=document.createElement('div');
+    item.className='track-item';
+    item.id=`item-${globalIdx}`;
 
-  filtered.forEach((t, i) => {
-    const globalIdx = allTracks.indexOf(t);
-    const hasAudio = !!t.embedUrl;
-    const item = document.createElement('div');
-    item.className = 'track-item' + (hasAudio ? '' : ' no-audio');
-    item.id = `item-${globalIdx}`;
+    const idTag=t.idMismatch?'<span class="id-warn-tag">ID不一致 / 要確認</span>':'';
 
-    item.innerHTML = `
-      <div class="track-row" onclick="${hasAudio ? `togglePlayer(${globalIdx})` : ''}">
-        <div class="track-num">${esc(t.turn || String(i+1))}</div>
+    let statusGroupHtml='';
+    t.tasks.forEach(task=>{
+      const badge=task.isDone?'<span class="status-dot done">✅ 完了</span>':'<span class="status-dot pend">❌ 未</span>';
+      statusGroupHtml+=`<div class="status-item"><span class="status-label">${esc(task.label)}</span>${badge}</div>`;
+    });
+
+    let taskCardsHtml='';
+    t.tasks.forEach(task=>{
+      const badgeCls=task.isDone?'done':'pend';
+      const badgeText=task.isDone?'✅ 提出完了':'❌ 未提出';
+      taskCardsHtml+=`
+        <div class="task-card">
+          <div class="task-card-header">
+            <span>${esc(task.label)}</span>
+            <span class="task-badge ${badgeCls}">${badgeText}</span>
+          </div>
+          ${buildFileWidget(task)}
+        </div>`;
+    });
+
+    item.innerHTML=`
+      <div class="track-row" onclick="togglePlayer(${globalIdx})">
+        <div class="track-num"><strong>${esc(t.turn||'—')}</strong><br><small style="color:var(--text-muted)">${esc(t.pro)}</small></div>
         <div class="track-info">
-          <div class="track-name">${highlight(t.name, q)}</div>
-          <div class="track-sub">${highlight(t.pro||'—', q)}${t.classId?' · '+highlight(t.classId,q):''}</div>
+          <div class="track-name">${highlight(t.name,q)}</div>
+          <div class="track-sub">
+            <span style="color:var(--green)">ID: ${highlight(t.classId||'未設定',q)}</span>
+            ${idTag}
+          </div>
         </div>
-        <div class="track-status"><span class="badge ${t.submitted?'badge-done':'badge-pend'}">${t.submitted ? '✅ 完了' : '❌ 未提出'}</span></div>
-        <div class="track-toggle">${hasAudio ? '▾' : '—'}</div>
+        <div class="submission-status-group">${statusGroupHtml}</div>
+        <div class="track-toggle">▾</div>
       </div>
       <div class="player-embed" id="embed-${globalIdx}">
-        ${hasAudio ? `<iframe id="iframe-${globalIdx}" src="" allow="autoplay" allowfullscreen loading="lazy"></iframe>` : `<div class="no-audio-msg">音源リンクが未登録です</div>`}
-      </div>
-    `;
+        <div class="detail-panel">
+          <div class="timing-row">
+            <span class="timing-label">音出しタイミング:</span>
+            <span class="timing-val">${esc(t.soundTiming)}</span>
+          </div>
+          <div style="font-size:13px;font-weight:bold;color:#fff;margin-bottom:10px;">📄 提出データ</div>
+          ${taskCardsHtml}
+        </div>
+      </div>`;
     list.appendChild(item);
   });
 
   wrap.appendChild(list);
-  document.getElementById('main-area').innerHTML = '';
+  document.getElementById('main-area').innerHTML='';
   document.getElementById('main-area').appendChild(wrap);
 }
 
 function togglePlayer(idx) {
-  const t = allTracks[idx];
-  if (!t || !t.embedUrl) return;
-  const item = document.getElementById(`item-${idx}`);
-  const iframe = document.getElementById(`iframe-${idx}`);
-  const isOpen = item.classList.contains('open');
-
-  if (openIdx >= 0 && openIdx !== idx) {
-    const pi = document.getElementById(`item-${openIdx}`);
-    const pf = document.getElementById(`iframe-${openIdx}`);
-    if (pi) pi.classList.remove('open');
-    if (pf) pf.src = '';
-    openIdx = -1;
+  const item=document.getElementById(`item-${idx}`);
+  if(!item) return;
+  const isOpen=item.classList.contains('open');
+  if(openIdx>=0&&openIdx!==idx){
+    const pi=document.getElementById(`item-${openIdx}`);
+    if(pi) pi.classList.remove('open');
+    openIdx=-1;
   }
+  if(isOpen){item.classList.remove('open');openIdx=-1;}
+  else{item.classList.add('open');openIdx=idx;setTimeout(()=>item.scrollIntoView({behavior:'smooth',block:'nearest'}),50);}
+}
 
-  if (isOpen) {
-    item.classList.remove('open');
-    iframe.src = '';
-    openIdx = -1;
-  } else {
-    item.classList.add('open');
-    iframe.src = t.embedUrl;
-    openIdx = idx;
-    setTimeout(() => item.scrollIntoView({ behavior:'smooth', block:'nearest' }), 50);
+function onSearch(){currentSearch=document.getElementById('search-input').value;openIdx=-1;renderList();}
+function setFilter(f,btn){currentFilter=f;document.querySelectorAll('.fbtn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');openIdx=-1;renderList();}
+function refreshData(){loadMasterConfig();}
+
+function parseCSV(text){
+  const rows=[];
+  for(const line of text.split('\n')){
+    if(!line.trim()) continue;
+    const cells=[];let cur='',inQ=false;
+    for(let i=0;i<line.length;i++){
+      const c=line[i];
+      if(c==='"'){if(inQ&&line[i+1]==='"'){cur+='"';i++;}else inQ=!inQ;}
+      else if(c===','&&!inQ){cells.push(cur.trim());cur='';}
+      else cur+=c;
+    }
+    cells.push(cur.trim());rows.push(cells);
   }
+  return rows;
 }
 
-function onSearch() {
-  currentSearch = document.getElementById('search-input').value;
-  openIdx = -1;
-  renderList();
+function highlight(text,query){
+  if(!query) return esc(text);
+  const escaped=query.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+  return esc(text).replace(new RegExp(`(${escaped})`,'gi'),'<mark>$1</mark>');
 }
-
-function setFilter(f, btn) {
-  currentFilter = f;
-  document.querySelectorAll('.fbtn').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-  openIdx = -1;
-  renderList();
+function showLoading(msg){
+  ['summary-bar','prog-section','search-filter'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});
+  document.getElementById('main-area').innerHTML=`<div class="state-msg"><div class="spinner"></div><div>${msg}</div></div>`;
 }
-
-function showLoading(msg = '読み込み中…') {
-  ['summary-bar','prog-section','search-filter'].forEach(id=>{
-    const el = document.getElementById(id);
-    if(el) el.style.display='none';
-  });
-  document.getElementById('main-area').innerHTML=`<div class="state-msg"><div class="spinner"></div><div class="title">${msg}</div></div>`;
+function showError(msg){
+  ['summary-bar','prog-section','search-filter'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});
+  document.getElementById('main-area').innerHTML=`<div class="state-msg"><div style="font-size:32px">⚠️</div><div>エラー</div><div style="font-size:12px;margin-top:8px">${msg}</div></div>`;
 }
-function showError(msg) {
-  ['summary-bar','prog-section','search-filter'].forEach(id=>{
-    const el = document.getElementById(id);
-    if(el) el.style.display='none';
-  });
-  document.getElementById('main-area').innerHTML=`<div class="state-msg"><div class="icon">⚠️</div><div class="title">エラー</div><div class="desc">${esc(msg)}</div></div>`;
-}
-function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 </script>
 </body>
 </html>
