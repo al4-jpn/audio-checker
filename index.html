@@ -58,7 +58,7 @@
   .track-item.has-dup{border-color:rgba(240,165,0,0.4);}
   .track-item.id-warn{border-color:rgba(248,81,73,0.4);}
   
-  /* PC向けデフォルト配置 */
+  /* PC配置 */
   .track-row{display:grid;grid-template-columns:50px 1fr 160px 32px;align-items:center;gap:12px;padding:12px;cursor:pointer;transition:background .12s;}
   .track-row:hover{background:var(--surface2);}
   .track-item.open .track-row{background:var(--surface2);border-bottom:1px solid var(--border);}
@@ -68,7 +68,7 @@
   .track-name{font-size:14px;font-weight:500;color:var(--text);line-height:1.4;word-break:break-all;}
   .track-sub{font-size:11px;color:var(--text-muted);margin-top:4px;display:flex;gap:6px;flex-wrap:wrap;align-items:center;}
   
-  /* バッジ類 */
+  /* バッジ */
   .tag{display:inline-block;padding:1px 6px;border-radius:4px;font-size:10px;font-weight:bold;}
   .tag-warn{background:var(--red-bg);color:var(--red);border:1px solid var(--red);}
   .tag-dup{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber);}
@@ -86,20 +86,16 @@
   .rs-val.dup{color:var(--amber);}
   .rs-val.warn{color:var(--red);}
   
-  /* toggle */
   .track-toggle{text-align:center;font-size:16px;color:var(--text-muted);transition:transform .25s;}
   .track-item.open .track-toggle{transform:rotate(180deg);color:var(--green);}
   
-  /* 展開エリア */
+  /* 展開パネル */
   .player-embed{max-height:0;overflow:hidden;transition:max-height .4s cubic-bezier(.4,0,.2,1);}
   .track-item.open .player-embed{max-height:3000px;}
   .detail-panel{padding:16px;background:#0d0d12;border-left:4px solid #1db954;}
   .track-item.id-warn .detail-panel{border-left-color:var(--red);}
   
-  /* ID不一致バナー */
   .id-warn-banner{background:rgba(248,81,73,0.05);border-radius:6px;padding:10px 14px;margin-bottom:14px;font-size:12px;color:var(--red);line-height:1.5;}
-  
-  /* 種別セクション */
   .type-section{margin-bottom:16px;}
   .type-section-header{display:flex;align-items:center;gap:8px;font-size:11px;font-weight:bold;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;padding:4px 0;margin-bottom:10px;}
   .type-dup-badge{font-size:10px;padding:1px 6px;border-radius:3px;background:var(--amber-bg);color:var(--amber);margin-left:4px;}
@@ -113,7 +109,7 @@
   .submit-meta strong{color:var(--text);font-weight:500;}
   .submit-timing{font-size:12px;color:var(--amber);background:rgba(240,165,0,0.08);padding:3px 8px;border-radius:4px;display:inline-block;margin-bottom:10px;font-weight:500;}
   
-  /* プレイヤー・プレビュー */
+  /* プレイヤー */
   .inline-audio{background:rgba(29,185,84,0.05);border-radius:6px;padding:8px 12px;display:flex;align-items:center;gap:10px;}
   .inline-audio audio{flex:1;min-width:200px;height:34px;}
   .gdrive-preview{width:100%;height:260px;border:none;border-radius:6px;background:rgba(0,0,0,0.2);display:block;margin-bottom:6px;}
@@ -121,7 +117,6 @@
   .open-btn:hover{background:rgba(255,255,255,0.1);color:var(--green);}
   .no-link{font-size:12px;color:var(--text-muted);font-style:italic;}
   
-  /* 未提出 */
   .no-sub-banner{background:rgba(255,255,255,0.02);border-radius:6px;padding:12px 14px;font-size:12px;color:var(--text-muted);text-align:center;}
   mark{background:rgba(240,165,0,0.3);color:var(--text);border-radius:2px;padding:0 1px;}
   .no-results{text-align:center;padding:40px 20px;color:var(--text-muted);}
@@ -129,15 +124,12 @@
   .spinner{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--green);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 14px;}
   @keyframes spin{to{transform:rotate(360deg);}}
 
-  /* ════════════════════════════════════
-     📱 スマホ専用レスポンシブスタイル
-     ════════════════════════════════════ */
+  /* 📱 スマホ用レスポンシブ配置調整 */
   @media (max-width: 768px) {
     .list-header {
-      display: none; /* スマホではテーブルヘッダーを非表示に */
+      display: none;
     }
     .track-row {
-      /* グリッド構成を「出番」「クラス情報」「矢印ボタン」の3つに変形、提出状況は下に回す */
       grid-template-columns: 45px 1fr 24px;
       grid-template-rows: auto auto;
       gap: 8px;
@@ -146,11 +138,10 @@
     .track-info {
       grid-column: 2 / 3;
     }
-    /* 判定プルダウン（提出状況サマリー）をクラス名の下側に配置 */
     .right-summary {
       grid-column: 2 / 3;
       grid-row: 2 / 3;
-      flex-direction: row; /* 横並びにする */
+      flex-direction: row;
       flex-wrap: wrap;
       gap: 4px;
       margin-top: 4px;
@@ -161,13 +152,13 @@
     }
     .track-toggle {
       grid-column: 3 / 4;
-      grid-row: 1 / 3; /* 矢印ボタンは右側中央に縦通し */
+      grid-row: 1 / 3;
       display: flex;
       align-items: center;
       justify-content: center;
     }
     .summary-bar {
-      grid-template-columns: repeat(2, 1fr); /* 上部カウンターを2列×2行に */
+      grid-template-columns: repeat(2, 1fr);
     }
   }
 </style>
@@ -222,16 +213,17 @@ const MASTER_TAB  = 'ID一覧';
 // 音源提出状況シート（B列=0）
 const SC = { Pro:0, 出番:1, クラス名:2, クラスID:3, 種別:4, 提出状況:5, 音出し:6 };
 
-// 配列シート列インデックス定義（A列=0, B列=1, C列=2...）
+// 配列シート列インデックス定義（調整済みのインデックスに準拠）
 const AC = {
-  申請ID: 1,      // A列
-  TS: 2,          // B列 (タイムスタンプ)
-  代表者: 2,      // C列
-  クラス名: 3,    // D列
-  音出し: 8,      // I列
-  ファイルURL: 14, // O列
-  ファイル種別: 16,// Q列
-  出演ID: 19       // T列 ← 紐付けキー
+  申請ID: 1,      
+  TS: 2,          
+  代表者: 2,      
+  クラス名: 3,    
+  音出し: 8,      
+  ファイルURL: 14, 
+  ファイル種別: 16,
+  出演ID: 19,
+  CXL: 21          // V列（左端のズレを考慮したインデックス）
 };
 
 let CONFIG={events:[]}, curEvIdx=0, allTracks=[], curFilter='all', curSearch='', openIdx=-1;
@@ -290,7 +282,8 @@ async function loadEvent(){
   try {
     const [stText, arText] = await Promise.all([
       fetchSheet(ev.sid, ev.sname, 'B1:I500'),
-      fetchSheet(ev.sid, '配列',   'A1:T2000').catch(()=>null),
+      // CXLの判定を含めるため、配列シートの取得範囲を「V列(A1:V2000)」まで拡張
+      fetchSheet(ev.sid, '配列',   'A1:V2000').catch(()=>null),
     ]);
 
     const byID = {};
@@ -302,6 +295,10 @@ async function loadEvent(){
       
       arRows.slice(start).forEach(r => {
         if (r.length <= Math.max(...Object.values(AC))) return; 
+
+        // ★ 新機能: V列（CXL）が「CXL」となっている行は最初から無効データとして完全に読み飛ばす
+        const cxlValue = (r[AC.CXL]||'').trim();
+        if (cxlValue === 'CXL') return;
 
         const 申請ID = (r[AC.申請ID]||'').trim();
         const ts = (r[AC.TS]||'').trim();
@@ -584,12 +581,9 @@ async function fetchSheet(sid, tab, range){
   return text;
 }
 
-// クォーテーションやGoogle API独自のDate(年,月...)表示を文字列から綺麗に排除・成形する関数
 function formatRawValue(val) {
   if (!val) return '';
   let str = val.trim();
-  
-  // ダブルクォーテーションをすべて一括削除
   str = str.replace(/"/g, '');
 
   if (str.includes('Date(')) {
