@@ -113,6 +113,7 @@
   .inline-audio{background:rgba(29,185,84,0.05);border-radius:6px;padding:8px 12px;display:flex;align-items:center;gap:10px;}
   .inline-audio audio{flex:1;min-width:200px;height:34px;}
   .gdrive-preview{width:100%;height:260px;border:none;border-radius:6px;background:rgba(0,0,0,0.2);display:block;margin-bottom:6px;}
+  .gdrive-audio-preview{width:100%;height:100px;border:none;border-radius:6px;background:rgba(0,0,0,0.2);display:block;margin-bottom:6px;}
   .open-btn{display:inline-flex;align-items:center;gap:5px;padding:6px 12px;background:rgba(255,255,255,0.05);color:var(--text);text-decoration:none;border-radius:4px;font-size:11px;font-weight:500;transition:background 0.2s;}
   .open-btn:hover{background:rgba(255,255,255,0.1);color:var(--green);}
   .no-link{font-size:12px;color:var(--text-muted);font-style:italic;}
@@ -223,7 +224,7 @@ const AC = {
   ファイルURL: 14, 
   ファイル種別: 16,
   出演ID: 19,
-  CXL: 21          // V列（左端のズレを考慮したインデックス）
+  CXL: 21          
 };
 
 let CONFIG={events:[]}, curEvIdx=0, allTracks=[], curFilter='all', curSearch='', openIdx=-1;
@@ -282,7 +283,6 @@ async function loadEvent(){
   try {
     const [stText, arText] = await Promise.all([
       fetchSheet(ev.sid, ev.sname, 'B1:I500'),
-      // CXLの判定を含めるため、配列シートの取得範囲を「V列(A1:V2000)」まで拡張
       fetchSheet(ev.sid, '配列',   'A1:V2000').catch(()=>null),
     ]);
 
@@ -296,7 +296,6 @@ async function loadEvent(){
       arRows.slice(start).forEach(r => {
         if (r.length <= Math.max(...Object.values(AC))) return; 
 
-        // ★ 新機能: V列（CXL）が「CXL」となっている行は最初から無効データとして完全に読み飛ばす
         const cxlValue = (r[AC.CXL]||'').trim();
         if (cxlValue === 'CXL') return;
 
@@ -524,17 +523,25 @@ function renderList(){
 }
 
 // ════════════════════════════════════
-//  ファイルウィジェット
+//  ファイルウィジェット & 音源URL判定
 // ════════════════════════════════════
 function isAudioType(ft){ return /音源|BGM|SE|オーディオ|audio/i.test(ft); }
+
+function audioMime(url){
+  const m = url.match(/\.([a-z0-9]+)(?:\?|$)/i);
+  const ext = m ? m[1].toLowerCase() : '';
+  return {
+    mp3:'audio/mpeg', wav:'audio/wav', ogg:'audio/ogg',
+    m4a:'audio/mp4', aac:'audio/aac', flac:'audio/flac'
+  }[ext] || '';
+}
+
+
 function gdPreview(url){
   const m=url.match(/\/file\/d\/([^\/\?]+)/)||url.match(/[?&]id=([^&]+)/);
   return m?`https://drive.google.com/file/d/${m[1]}/preview`:url;
 }
-function gdDirect(url){
-  const m=url.match(/\/file\/d\/([^\/\?]+)/)||url.match(/[?&]id=([^&]+)/);
-  return m?`https://drive.google.com/uc?export=download&id=${m[1]}`:url;
-}
+
 function buildFileWidget(url, fileType){
   if(!url) return '<div class="no-link">リンク未登録</div>';
   const isGD  = url.includes('drive.google.com')||url.includes('docs.google.com');
@@ -543,13 +550,13 @@ function buildFileWidget(url, fileType){
   
   if (isImg) return `<div style="text-align:center;background:rgba(0,0,0,.3);border-radius:6px;padding:8px"><img src="${esc(url)}" style="max-width:100%;max-height:400px;border-radius:4px" loading="lazy"/></div>`;
   if (isGD){
-    if (isAud) return `<div class="inline-audio"><audio controls preload="none"><source src="${esc(gdDirect(url))}"></audio></div>
+    if (isAud) return `<iframe class="gdrive-audio-preview" src="${esc(gdPreview(url))}" allow="autoplay" loading="lazy"></iframe>
       <a class="open-btn" href="${esc(url)}" target="_blank">↗ Googleドライブで確認</a>`;
     return `<iframe class="gdrive-preview" src="${esc(gdPreview(url))}" allowfullscreen loading="lazy"></iframe>
       <a class="open-btn" href="${esc(url)}" target="_blank">↗ 別タブで開く</a>`;
   }
   if (isAud) {
-    return `<div class="inline-audio"><audio controls preload="none"><source src="${esc(url)}"></audio></div>`;
+    return `<div class="inline-audio"><audio controls preload="none"><source src="${esc(url)}" type="${audioMime(url)}"></audio></div>`;
   }
   return `<a class="open-btn" href="${esc(url)}" target="_blank">↗ ファイルを確認</a>`;
 }
@@ -557,13 +564,14 @@ function buildFileWidget(url, fileType){
 // ════════════════════════════════════
 //  UI操作
 // ════════════════════════════════════
+// スマホ時にスクロールがピクつくのを防ぐため、scrollIntoViewの挙動を調整
 function togglePlayer(idx){
   const item=document.getElementById(`item-${idx}`);
   if(!item) return;
   const isOpen=item.classList.contains('open');
   if(openIdx>=0&&openIdx!==idx){ const p=document.getElementById(`item-${openIdx}`); if(p)p.classList.remove('open'); openIdx=-1; }
   if(isOpen){item.classList.remove('open');openIdx=-1;}
-  else{item.classList.add('open');openIdx=idx;setTimeout(()=>item.scrollIntoView({behavior:'smooth',block:'nearest'}),50);}
+  else{item.classList.add('open');openIdx=idx;setTimeout(()=>item.scrollIntoView({behavior:'auto',block:'nearest'}),50);}
 }
 function onSearch(){curSearch=document.getElementById('search-input').value;openIdx=-1;renderList();}
 function setFilter(f,btn){curFilter=f;document.querySelectorAll('.fbtn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');openIdx=-1;renderList();}
