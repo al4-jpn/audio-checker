@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>提出物　受付状況</title>
+<title>進行・提出状況ダッシュボード</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Space+Grotesk:wght@400;600;700&display=swap');
   :root {
@@ -168,7 +168,7 @@
 <header>
   <div class="logo">
     <div class="logo-icon">♪</div>
-    <h1>提出物　受付状況</span></h1>
+    <h1>進行・提出状況<span>ダッシュボード</span></h1>
   </div>
   <div class="header-right">
     <span id="last-updated"></span>
@@ -294,7 +294,7 @@ async function loadEvent(){
       const start = (arRows[0]?.[AC.申請ID]||'').includes('申請') ? 1 : 0;
       
       arRows.slice(start).forEach(r => {
-        if (r.length <= Math.max(...Object.values(AC))) return; 
+        if (r.length <= AC.ファイルURL) return; // ファイルURL列までは必須。それ以降(出演ID/CXL等)は欠けていても可
 
         const cxlValue = (r[AC.CXL]||'').trim();
         if (cxlValue === 'CXL') return;
@@ -337,13 +337,21 @@ async function loadEvent(){
     const dataRows = (stRows[0]?.[0]==='Pro'||stRows[0]?.[1]==='出番') ? stRows.slice(1) : stRows;
 
     const tracks = [];
+    const claimedBroken = new Set();
     dataRows.forEach(r => {
       const name = (r[SC.クラス名]||'').trim();
       if (!name || name==='フォーム提出名') return;
 
       const cid = (r[SC.クラスID]||'').trim();
       const isSourceIdError = !cid || cid.startsWith('#') || cid.length < 2;
-      const matchedBrokenSub = brokenIDList.filter(b => name.includes(b.className) || b.className.includes(name));
+      const matchedBrokenSub = [];
+      brokenIDList.forEach((b, bi) => {
+        if (claimedBroken.has(bi)) return;
+        if (b.className && (name.includes(b.className) || b.className.includes(name))) {
+          matchedBrokenSub.push(b);
+          claimedBroken.add(bi);
+        }
+      });
       const isIdWarn = isSourceIdError || matchedBrokenSub.length > 0;
 
       const subs = isSourceIdError ? [] : (byID[cid] || []);
@@ -365,6 +373,38 @@ async function loadEvent(){
         subs,     
         byType,   
         hasDup: Object.values(byType).some(arr => arr.length > 1),
+        isOrphan: false,
+      });
+    });
+
+    // ── 提出状況シートのどのクラスにも紐付かなかった提出（出演ID未生成 ＋ クラス名も不一致）を
+    //    「未登録クラス」としてID不一致タブに表示できるようにまとめる ──
+    const orphanGroups = {};
+    const orphanOrder = [];
+    brokenIDList.forEach((b, bi) => {
+      if (claimedBroken.has(bi)) return;
+      const key = b.reqId || `${b.className}__${b.ts}`;
+      if (!orphanGroups[key]) { orphanGroups[key] = []; orphanOrder.push(key); }
+      orphanGroups[key].push(b);
+    });
+    orphanOrder.forEach(key => {
+      const subs = orphanGroups[key];
+      const byType = {};
+      subs.forEach(s => {
+        const ft = s.fileType || '音源';
+        if (!byType[ft]) byType[ft] = [];
+        byType[ft].push(s);
+      });
+      tracks.push({
+        pro: '',
+        turn: '—',
+        name: subs[0].className || '(クラス名不明)',
+        cid: '',
+        isIdWarn: true,
+        subs,
+        byType,
+        hasDup: Object.values(byType).some(arr => arr.length > 1),
+        isOrphan: true,
       });
     });
 
@@ -379,9 +419,10 @@ async function loadEvent(){
 //  描画
 // ════════════════════════════════════
 function renderAll(){
-  const total = allTracks.length;
-  const done  = allTracks.filter(t=>t.subs.length>0 && !t.isIdWarn).length;
-  const dup   = allTracks.filter(t=>t.hasDup).length;
+  const countable = allTracks.filter(t=>!t.isOrphan);
+  const total = countable.length;
+  const done  = countable.filter(t=>t.subs.length>0 && !t.isIdWarn).length;
+  const dup   = countable.filter(t=>t.hasDup).length;
   const pct   = total ? Math.round(done/total*100) : 0;
   document.getElementById('cnt-total').textContent = total;
   document.getElementById('cnt-done').textContent  = done;
@@ -433,7 +474,7 @@ function renderList(){
     item.id = `item-${gi}`;
 
     let rsHtml = '';
-    if (t.isIdWarn) {
+    if (t.isIdWarn && !t.isOrphan) {
       rsHtml = `<div class="rs-row"><span class="rs-label">ID不具合</span><span class="rs-val warn">🔴 要確認</span></div>`;
     } else if (!t.subs.length) {
       rsHtml = `<div class="rs-row"><span class="rs-label">提出</span><span class="rs-val ng">❌ なし</span></div>`;
@@ -445,10 +486,19 @@ function renderList(){
           <span class="rs-val ${isDup?'dup':'ok'}">${isDup?`⚠️ ${arr.length}件`:'✅ 1件'}</span>
         </div>`;
       });
+      if (t.isOrphan) {
+        rsHtml += `<div class="rs-row"><span class="rs-label">登録</span><span class="rs-val warn">🔴 未登録</span></div>`;
+      }
     }
 
     let detailHtml = '';
-    if (t.isIdWarn) {
+    if (t.isOrphan) {
+      detailHtml = `<div class="id-warn-banner">
+        🔴 <strong>提出状況シートに該当クラスが見つかりません。</strong><br>
+        配列シート上で提出されたクラス名：<strong>${esc(t.name)}</strong><br>
+        出演ID（T列）が自動生成されておらず、クラス名も提出状況シートのいずれの行とも一致しなかったため、未登録のクラスとして表示しています。クラス名の表記ゆれや、提出状況シート側へのクラス追加・クラスIDの設定をご確認ください。
+      </div>`;
+    } else if (t.isIdWarn) {
       detailHtml = `<div class="id-warn-banner">
         🔴 <strong>IDエラーを検出：</strong><br>
         ・提出状況シートのクラス判定IDがエラー（#N/A等）になっている、または<br>
@@ -493,7 +543,8 @@ function renderList(){
         </div>`;
     });
 
-    const idTag = t.isIdWarn ? `<span class="tag tag-warn">🔴 ID不一致</span>` : '';
+    const idTag = t.isOrphan ? `<span class="tag tag-warn">🔴 未登録クラス</span>`
+                : (t.isIdWarn ? `<span class="tag tag-warn">🔴 ID不一致</span>` : '');
     const dupTag = t.hasDup  ? `<span class="tag tag-dup">⚠️ ダブりあり</span>` : '';
 
     item.innerHTML = `
