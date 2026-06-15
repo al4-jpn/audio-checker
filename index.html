@@ -8,33 +8,34 @@
   @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Space+Grotesk:wght@400;600;700&display=swap');
   :root {
     --bg:#0a0a0f;--surface:#13131a;--surface2:#1a1a24;--border:#2a2a3a;
-    --green:#1db954;--green-bg:#0a2016;--red:#f85149;--red-bg:#200a0a;
-    --amber:#f0a500;--amber-bg:#2d1f00;--text:#e8e8f0;--text-muted:#6e6e8a;
+    --green:#1db954;--green-bg:rgba(29,185,84,0.1);--red:#f85149;--red-bg:#200a0a;
+    --amber:#f0a500;--amber-bg:#2d1f00;--blue:#58a6ff;--blue-bg:#0d1f38;
+    --text:#e8e8f0;--text-muted:#6e6e8a;
+    --card-bg: rgba(255,255,255,0.02);
   }
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
   body{background:var(--bg);color:var(--text);font-family:'Noto Sans JP',sans-serif;min-height:100vh;padding-bottom:60px;}
   header{background:rgba(10,10,15,0.96);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:14px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200;gap:12px;flex-wrap:wrap;}
   .logo{display:flex;align-items:center;gap:10px;}
-  .logo-icon{width:30px;height:30px;background:var(--green);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;color:#000;font-weight:bold;}
+  .logo-icon{width:30px;height:30px;background:var(--green);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;color:#000;font-weight:bold;}
   .logo h1{font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:700;}
   .logo h1 span{color:var(--green);}
   .header-right{display:flex;align-items:center;gap:10px;}
   #last-updated{font-size:11px;color:var(--text-muted);}
-  .btn-sm{background:none;border:1px solid var(--border);color:var(--text-muted);padding:5px 12px;border-radius:20px;font-size:12px;cursor:pointer;transition:all .15s;font-family:inherit;}
+  .btn-sm{background:none;border:1px solid var(--border);color:var(--text-muted);padding:5px 12px;border-radius:20px;font-size:12px;cursor:pointer;font-family:inherit;}
   .btn-sm:hover{border-color:var(--green);color:var(--green);}
   .event-selector-bar{background:var(--surface);border-bottom:1px solid var(--border);padding:10px 16px;display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;}
-  .event-selector-bar::-webkit-scrollbar{display:none;}
-  .ev-tab{background:none;border:1px solid var(--border);color:var(--text-muted);padding:6px 14px;border-radius:6px;font-size:12px;font-weight:500;cursor:pointer;white-space:nowrap;transition:all .15s;}
-  .ev-tab:hover{border-color:var(--text-muted);color:var(--text);}
+  .ev-tab{background:none;border:1px solid var(--border);color:var(--text-muted);padding:6px 14px;border-radius:6px;font-size:12px;cursor:pointer;white-space:nowrap;}
   .ev-tab.active{background:var(--surface2);border-color:var(--green);color:var(--green);font-weight:700;}
   .container{max-width:950px;margin:0 auto;padding:24px 16px;}
-  .summary-bar{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px;}
+  .summary-bar{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px;}
   .sc{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px 16px;}
   .sc .lbl{font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px;}
-  .sc .val{font-family:'Space Grotesk',sans-serif;font-size:26px;font-weight:700;line-height:1;}
-  .sc.total .val{color:var(--text);}
-  .sc.done .val{color:var(--green);}
-  .sc.pend .val{color:var(--red);}
+  .sc .val{font-family:'Space Grotesk',sans-serif;font-size:24px;font-weight:700;line-height:1;}
+  .sc.c-total .val{color:var(--text);}
+  .sc.c-done .val{color:var(--green);}
+  .sc.c-pend .val{color:var(--red);}
+  .sc.c-dup .val{color:var(--amber);}
   .prog-section{margin-bottom:16px;}
   .prog-label{display:flex;justify-content:space-between;font-size:11px;color:var(--text-muted);margin-bottom:6px;}
   .prog-track{height:4px;background:var(--surface2);border-radius:2px;overflow:hidden;}
@@ -42,64 +43,136 @@
   .search-filter{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;align-items:center;}
   .search-wrap{flex:1;min-width:180px;position:relative;}
   .search-wrap .icon{position:absolute;left:11px;top:50%;transform:translateY(-50%);font-size:14px;color:var(--text-muted);pointer-events:none;}
-  #search-input{width:100%;background:var(--surface);border:1px solid var(--border);color:var(--text);padding:8px 12px 8px 34px;border-radius:20px;font-size:13px;font-family:inherit;transition:border-color .15s;}
+  #search-input{width:100%;background:var(--surface);border:1px solid var(--border);color:var(--text);padding:8px 12px 8px 34px;border-radius:20px;font-size:13px;font-family:inherit;}
   #search-input:focus{outline:none;border-color:var(--green);}
   .filter-row{display:flex;gap:6px;flex-wrap:wrap;}
-  .fbtn{background:none;border:1px solid var(--border);color:var(--text-muted);padding:5px 12px;border-radius:20px;font-size:12px;cursor:pointer;transition:all .15s;font-family:inherit;white-space:nowrap;}
-  .fbtn:hover,.fbtn.active{background:var(--green);color:#000;border-color:var(--green);font-weight:700;}
-  .fbtn.btn-alert:hover,.fbtn.btn-alert.active{background:var(--amber);color:#000;border-color:var(--amber);}
-  .list-header{display:grid;grid-template-columns:45px 1fr 180px 32px;padding:6px 12px;border-bottom:1px solid var(--border);font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px;}
+  .fbtn{background:none;border:1px solid var(--border);color:var(--text-muted);padding:5px 12px;border-radius:20px;font-size:12px;cursor:pointer;font-family:inherit;white-space:nowrap;}
+  .fbtn.active,.fbtn:hover{background:var(--green);color:#000;border-color:var(--green);font-weight:700;}
+  .fbtn.f-dup.active,.fbtn.f-dup:hover{background:var(--amber);color:#000;border-color:var(--amber);}
+  .fbtn.f-warn.active,.fbtn.f-warn:hover{background:var(--red);color:#fff;border-color:var(--red);}
+  
+  /* リスト構造 */
+  .list-header{display:grid;grid-template-columns:50px 1fr 160px 32px;padding:6px 12px;border-bottom:1px solid var(--border);font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px;}
   .tracklist{display:flex;flex-direction:column;}
   .track-item{border-radius:8px;overflow:hidden;margin-bottom:6px;background:var(--surface);border:1px solid var(--border);}
-  .track-row{display:grid;grid-template-columns:45px 1fr 180px 32px;align-items:center;gap:8px;padding:12px;cursor:pointer;transition:background .12s;}
+  .track-item.has-dup{border-color:rgba(240,165,0,0.4);}
+  .track-item.id-warn{border-color:rgba(248,81,73,0.4);}
+  
+  /* PC向けデフォルト配置 */
+  .track-row{display:grid;grid-template-columns:50px 1fr 160px 32px;align-items:center;gap:12px;padding:12px;cursor:pointer;transition:background .12s;}
   .track-row:hover{background:var(--surface2);}
   .track-item.open .track-row{background:var(--surface2);border-bottom:1px solid var(--border);}
   .track-num{font-family:'Space Grotesk',sans-serif;font-size:12px;color:var(--text-muted);text-align:center;}
   .track-item.open .track-num{color:var(--green);}
   .track-info{min-width:0;}
   .track-name{font-size:14px;font-weight:500;color:var(--text);line-height:1.4;word-break:break-all;}
-  .track-sub{font-size:11px;color:var(--text-muted);margin-top:4px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
-  .id-warn-tag{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber);padding:0px 6px;border-radius:4px;font-size:9px;font-weight:bold;}
-  .submission-status-group{display:flex;flex-direction:column;gap:4px;justify-content:center;}
-  .status-item{display:flex;align-items:center;justify-content:space-between;font-size:11px;padding:2px 6px;border-radius:4px;background:rgba(0,0,0,0.2);}
-  .status-label{color:var(--text-muted);font-size:10px;}
-  .status-dot{font-weight:bold;font-size:11px;}
-  .status-dot.done{color:var(--green);}
-  .status-dot.pend{color:var(--red);}
+  .track-sub{font-size:11px;color:var(--text-muted);margin-top:4px;display:flex;gap:6px;flex-wrap:wrap;align-items:center;}
+  
+  /* バッジ類 */
+  .tag{display:inline-block;padding:1px 6px;border-radius:4px;font-size:10px;font-weight:bold;}
+  .tag-warn{background:var(--red-bg);color:var(--red);border:1px solid var(--red);}
+  .tag-dup{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber);}
+  .tag-ok{background:var(--green-bg);color:var(--green);border:1px solid rgba(29,185,84,0.3);}
+  .tag-latest{background:rgba(29,185,84,0.12);color:var(--green);font-size:10px;padding:2px 7px;border-radius:4px;font-weight:bold;}
+  .tag-old{background:rgba(255,255,255,0.05);color:var(--text-muted);font-size:10px;padding:2px 7px;border-radius:4px;}
+  
+  /* 右列サマリー */
+  .right-summary{display:flex;flex-direction:column;gap:3px;min-width:0;}
+  .rs-row{display:flex;align-items:center;justify-content:space-between;font-size:11px;padding:2px 6px;border-radius:4px;background:rgba(0,0,0,0.15);white-space:nowrap;}
+  .rs-label{color:var(--text-muted);font-size:10px;margin-right:6px;}
+  .rs-val{font-weight:bold;}
+  .rs-val.ok{color:var(--green);}
+  .rs-val.ng{color:var(--red);}
+  .rs-val.dup{color:var(--amber);}
+  .rs-val.warn{color:var(--red);}
+  
+  /* toggle */
   .track-toggle{text-align:center;font-size:16px;color:var(--text-muted);transition:transform .25s;}
   .track-item.open .track-toggle{transform:rotate(180deg);color:var(--green);}
-  .player-embed{max-height:0;overflow:hidden;transition:max-height .35s cubic-bezier(.4,0,.2,1);background:var(--surface2);}
-  .track-item.open .player-embed{max-height:1200px;}
-  .detail-panel{padding:16px;font-size:12px;background:#121318;border-left:4px solid #34c759;}
-  .timing-row{margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid #25262e;display:flex;align-items:center;gap:8px;font-size:13px;}
-  .timing-label{color:var(--text-muted);}
-  .timing-val{color:var(--amber);font-weight:bold;font-size:15px;}
-  .task-card{background:rgba(0,0,0,0.25);border:1px solid var(--border);border-radius:8px;padding:14px;margin-bottom:10px;}
-  .task-card-header{display:flex;align-items:center;gap:8px;margin-bottom:10px;font-size:13px;font-weight:bold;color:#fff;}
-  .task-badge{font-size:11px;padding:2px 8px;border-radius:4px;font-weight:normal;}
-  .task-badge.done{background:var(--green-bg);color:var(--green);border:1px solid var(--green);}
-  .task-badge.pend{background:var(--red-bg);color:var(--red);border:1px solid var(--red);}
-  /* 音源プレイヤー */
-  .inline-audio-player{background:rgba(29,185,84,0.08);border:1px solid rgba(29,185,84,0.3);border-radius:6px;padding:10px 14px;display:flex;align-items:center;gap:12px;}
-  .inline-audio-player audio{flex:1;min-width:200px;height:36px;border-radius:4px;}
-  /* 画像 */
-  .inline-image-viewer{text-align:center;background:rgba(0,0,0,0.3);border-radius:6px;padding:8px;}
-  .inline-image-viewer img{max-width:100%;max-height:400px;border-radius:4px;border:1px solid var(--border);}
-  /* iframeプレビュー（音源以外） */
-  .gdrive-preview{width:100%;height:320px;border:none;border-radius:6px;border:1px solid var(--border);display:block;}
-  /* リンクボタン */
-  .open-link-btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:rgba(29,185,84,0.12);color:var(--green);text-decoration:none;border-radius:6px;border:1px solid rgba(29,185,84,0.4);font-size:12px;font-weight:bold;transition:background .15s;margin-top:6px;}
-  .open-link-btn:hover{background:rgba(29,185,84,0.22);}
-  .no-data-msg{font-size:12px;color:var(--text-muted);font-style:italic;padding:6px 0;}
+  
+  /* 展開エリア */
+  .player-embed{max-height:0;overflow:hidden;transition:max-height .4s cubic-bezier(.4,0,.2,1);}
+  .track-item.open .player-embed{max-height:3000px;}
+  .detail-panel{padding:16px;background:#0d0d12;border-left:4px solid #1db954;}
+  .track-item.id-warn .detail-panel{border-left-color:var(--red);}
+  
+  /* ID不一致バナー */
+  .id-warn-banner{background:rgba(248,81,73,0.05);border-radius:6px;padding:10px 14px;margin-bottom:14px;font-size:12px;color:var(--red);line-height:1.5;}
+  
+  /* 種別セクション */
+  .type-section{margin-bottom:16px;}
+  .type-section-header{display:flex;align-items:center;gap:8px;font-size:11px;font-weight:bold;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;padding:4px 0;margin-bottom:10px;}
+  .type-dup-badge{font-size:10px;padding:1px 6px;border-radius:3px;background:var(--amber-bg);color:var(--amber);margin-left:4px;}
+  
+  /* 提出カード */
+  .submit-card{position:relative;background:var(--card-bg);border-radius:6px;padding:12px 14px;margin-bottom:10px;box-shadow:inset 0 1px 0 rgba(255,255,255,0.03);border-left:2px solid transparent;}
+  .submit-card.is-latest{border-left-color:rgba(29,185,84,0.6);background:rgba(29,185,84,0.01);}
+  .submit-card.is-dup{border-left-color:rgba(240,165,0,0.4);}
+  .submit-card-header{display:flex;align-items:center;gap:12px;margin-bottom:8px;flex-wrap:wrap;}
+  .submit-meta{font-size:12px;color:var(--text-muted);display:inline-flex;align-items:center;gap:4px;}
+  .submit-meta strong{color:var(--text);font-weight:500;}
+  .submit-timing{font-size:12px;color:var(--amber);background:rgba(240,165,0,0.08);padding:3px 8px;border-radius:4px;display:inline-block;margin-bottom:10px;font-weight:500;}
+  
+  /* プレイヤー・プレビュー */
+  .inline-audio{background:rgba(29,185,84,0.05);border-radius:6px;padding:8px 12px;display:flex;align-items:center;gap:10px;}
+  .inline-audio audio{flex:1;min-width:200px;height:34px;}
+  .gdrive-preview{width:100%;height:260px;border:none;border-radius:6px;background:rgba(0,0,0,0.2);display:block;margin-bottom:6px;}
+  .open-btn{display:inline-flex;align-items:center;gap:5px;padding:6px 12px;background:rgba(255,255,255,0.05);color:var(--text);text-decoration:none;border-radius:4px;font-size:11px;font-weight:500;transition:background 0.2s;}
+  .open-btn:hover{background:rgba(255,255,255,0.1);color:var(--green);}
+  .no-link{font-size:12px;color:var(--text-muted);font-style:italic;}
+  
+  /* 未提出 */
+  .no-sub-banner{background:rgba(255,255,255,0.02);border-radius:6px;padding:12px 14px;font-size:12px;color:var(--text-muted);text-align:center;}
   mark{background:rgba(240,165,0,0.3);color:var(--text);border-radius:2px;padding:0 1px;}
-  .no-results{text-align:center;padding:40px 20px;color:var(--text-muted);font-size:14px;}
+  .no-results{text-align:center;padding:40px 20px;color:var(--text-muted);}
   .state-msg{text-align:center;padding:60px 20px;color:var(--text-muted);}
-  .state-msg .spinner{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--green);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 14px;}
+  .spinner{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--green);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 14px;}
   @keyframes spin{to{transform:rotate(360deg);}}
+
+  /* ════════════════════════════════════
+     📱 スマホ専用レスポンシブスタイル
+     ════════════════════════════════════ */
+  @media (max-width: 768px) {
+    .list-header {
+      display: none; /* スマホではテーブルヘッダーを非表示に */
+    }
+    .track-row {
+      /* グリッド構成を「出番」「クラス情報」「矢印ボタン」の3つに変形、提出状況は下に回す */
+      grid-template-columns: 45px 1fr 24px;
+      grid-template-rows: auto auto;
+      gap: 8px;
+      padding: 12px 10px;
+    }
+    .track-info {
+      grid-column: 2 / 3;
+    }
+    /* 判定プルダウン（提出状況サマリー）をクラス名の下側に配置 */
+    .right-summary {
+      grid-column: 2 / 3;
+      grid-row: 2 / 3;
+      flex-direction: row; /* 横並びにする */
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-top: 4px;
+    }
+    .rs-row {
+      padding: 1px 6px;
+      font-size: 10px;
+    }
+    .track-toggle {
+      grid-column: 3 / 4;
+      grid-row: 1 / 3; /* 矢印ボタンは右側中央に縦通し */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .summary-bar {
+      grid-template-columns: repeat(2, 1fr); /* 上部カウンターを2列×2行に */
+    }
+  }
 </style>
 </head>
 <body>
-
 <header>
   <div class="logo">
     <div class="logo-icon">♪</div>
@@ -110,317 +183,339 @@
     <button class="btn-sm" onclick="refreshData()">↻ 更新</button>
   </div>
 </header>
-
 <div class="event-selector-bar" id="event-tab-bar" style="display:none"></div>
-
 <div class="container">
   <div class="summary-bar" id="summary-bar" style="display:none">
-    <div class="sc total"><div class="lbl">総クラス数</div><div class="val" id="total-count">—</div></div>
-    <div class="sc done"><div class="lbl">✅ 完全完了</div><div class="val" id="done-count">—</div></div>
-    <div class="sc pend"><div class="lbl">❌ 未完了クラス</div><div class="val" id="pending-count">—</div></div>
+    <div class="sc c-total"><div class="lbl">総クラス数</div><div class="val" id="cnt-total">—</div></div>
+    <div class="sc c-done"> <div class="lbl">✅ 提出あり</div><div class="val" id="cnt-done">—</div></div>
+    <div class="sc c-pend"> <div class="lbl">❌ 未提出</div><div class="val" id="cnt-pend">—</div></div>
+    <div class="sc c-dup">  <div class="lbl">⚠️ ダブり</div><div class="val" id="cnt-dup">—</div></div>
   </div>
   <div class="prog-section" id="prog-section" style="display:none">
-    <div class="prog-label"><span>タスク全体の完了進捗</span><span id="prog-pct">0%</span></div>
+    <div class="prog-label"><span>提出済みクラス割合</span><span id="prog-pct">0%</span></div>
     <div class="prog-track"><div class="prog-fill" id="prog-fill"></div></div>
   </div>
   <div class="search-filter" id="search-filter" style="display:none">
     <div class="search-wrap">
       <span class="icon">🔍</span>
-      <input type="search" id="search-input" placeholder="出番・クラス名・IDで検索…" oninput="onSearch()" />
+      <input type="search" id="search-input" placeholder="出番・クラス名・IDで検索…" oninput="onSearch()"/>
     </div>
     <div class="filter-row">
-      <button class="fbtn active" onclick="setFilter('all',this)">すべて</button>
-      <button class="fbtn" onclick="setFilter('done',this)">✅ 全完了</button>
-      <button class="fbtn" onclick="setFilter('pend',this)">❌ 未完了あり</button>
-      <button class="fbtn btn-alert" onclick="setFilter('id-mismatch',this)">⚠️ ID不一致</button>
+      <button class="fbtn active"  onclick="setFilter('all',this)">すべて</button>
+      <button class="fbtn"         onclick="setFilter('submitted',this)">✅ 提出あり</button>
+      <button class="fbtn"         onclick="setFilter('none',this)">❌ 未提出</button>
+      <button class="fbtn f-dup"   onclick="setFilter('dup',this)">📂 ダブりあり</button>
+      <button class="fbtn f-warn"  onclick="setFilter('idwarn',this)">🔴 ID不一致</button>
     </div>
   </div>
   <div id="main-area">
-    <div class="state-msg"><div class="spinner"></div><div>イベント情報をロード中…</div></div>
+    <div class="state-msg"><div class="spinner"></div><div>ロード中…</div></div>
   </div>
 </div>
-
 <script>
-const COL={Pro:0,出番:1,フォーム提出名:2,クラス判定ID:3,種別:4,提出状況:5,音出し:6,データ:7};
-const MASTER_SHEET_ID='1b7g-oboLH1IJfVv_rGZDgz0hwAWMXhhBMXgtItnzKC0';
-const MASTER_SHEET_NAME='ID一覧';
+// ════════════════════════════════════
+//  定数
+// ════════════════════════════════════
+const MASTER_ID   = '1b7g-oboLH1IJfVv_rGZDgz0hwAWMXhhBMXgtItnzKC0';
+const MASTER_TAB  = 'ID一覧';
 
-let CONFIG={events:[]};
-let currentSheetId='';
-let currentEventIdx=0;
-let allTracks=[];
-let currentFilter='all';
-let currentSearch='';
-let openIdx=-1;
+// 音源提出状況シート（B列=0）
+const SC = { Pro:0, 出番:1, クラス名:2, クラスID:3, 種別:4, 提出状況:5, 音出し:6 };
 
-// 種別ラベルが音源かどうか判定
-function isAudioTask(label) {
-  return label.includes('音源') || label.includes('オーディオ') || label.includes('BGM') || label.includes('SE');
-}
+// 配列シート列インデックス定義（A列=0, B列=1, C列=2...）
+const AC = {
+  申請ID: 1,      // A列
+  TS: 2,          // B列 (タイムスタンプ)
+  代表者: 2,      // C列
+  クラス名: 3,    // D列
+  音出し: 8,      // I列
+  ファイルURL: 14, // O列
+  ファイル種別: 16,// Q列
+  出演ID: 19       // T列 ← 紐付けキー
+};
 
-// GoogleドライブURLからファイルIDを抽出してプレビューURLに変換
-function toGDrivePreviewUrl(url) {
-  const m1 = url.match(/\/file\/d\/([^\/\?]+)/);
-  const m2 = url.match(/[?&]id=([^&]+)/);
-  const id = m1 ? m1[1] : (m2 ? m2[1] : null);
-  return id ? `https://drive.google.com/file/d/${id}/preview` : url;
-}
+let CONFIG={events:[]}, curEvIdx=0, allTracks=[], curFilter='all', curSearch='', openIdx=-1;
 
-// GoogleドライブURLから直接ダウンロードURLに変換（audioタグ用）
-function toGDriveDirectUrl(url) {
-  const m1 = url.match(/\/file\/d\/([^\/\?]+)/);
-  const m2 = url.match(/[?&]id=([^&]+)/);
-  const id = m1 ? m1[1] : (m2 ? m2[1] : null);
-  return id ? `https://drive.google.com/uc?export=download&id=${id}` : url;
-}
+// ════════════════════════════════════
+//  起動
+// ════════════════════════════════════
+window.addEventListener('DOMContentLoaded', loadMaster);
 
-function isGDrive(url) {
-  return url.includes('drive.google.com') || url.includes('docs.google.com');
-}
-
-function isDirectAudio(url) {
-  return /\.(mp3|wav|ogg|m4a|aac|flac)(\?|$)/i.test(url);
-}
-
-function isDirectImage(url) {
-  return /\.(png|jpg|jpeg|gif|webp|svg)(\?|$)/i.test(url);
-}
-
-// ★ 種別ラベルを見てウィジェットを振り分ける
-function buildFileWidget(task) {
-  const url = (task.link || '').trim();
-  if (!url) return '<div class="no-data-msg">⚠️ データリンクはまだ登録されていません。</div>';
-
-  const isAudio = isAudioTask(task.label);
-
-  // 直接音声ファイル
-  if (isDirectAudio(url)) {
-    return `<div class="inline-audio-player">
-      <span style="font-size:18px;">🎵</span>
-      <audio controls preload="none" style="flex:1;min-width:200px;">
-        <source src="${esc(url)}">
-      </audio>
-    </div>`;
-  }
-
-  // 直接画像ファイル
-  if (isDirectImage(url)) {
-    return `<div class="inline-image-viewer">
-      <img src="${esc(url)}" alt="${esc(task.label)}" loading="lazy" />
-    </div>`;
-  }
-
-  // Googleドライブ
-  if (isGDrive(url)) {
-    if (isAudio) {
-      // 音源 → audioプレイヤーのみ
-      const directUrl = toGDriveDirectUrl(url);
-      return `<div class="inline-audio-player">
-        <span style="font-size:18px;">🎵</span>
-        <audio controls preload="none" style="flex:1;min-width:200px;">
-          <source src="${esc(directUrl)}">
-        </audio>
-      </div>
-      <a class="open-link-btn" href="${esc(url)}" target="_blank">↗ Googleドライブで開く</a>`;
-    } else {
-      // 音源以外 → iframeプレビューのみ
-      const previewUrl = toGDrivePreviewUrl(url);
-      return `<iframe class="gdrive-preview" src="${esc(previewUrl)}" allowfullscreen loading="lazy"></iframe>
-      <a class="open-link-btn" href="${esc(url)}" target="_blank">↗ Googleドライブで開く</a>`;
-    }
-  }
-
-  // その他URL → リンクボタンのみ
-  return `<a class="open-link-btn" href="${esc(url)}" target="_blank">↗ ファイルを開く</a>`;
-}
-
-window.addEventListener('DOMContentLoaded',()=>{ loadMasterConfig(); });
-
-async function loadMasterConfig() {
+async function loadMaster(){
   showLoading('イベント構成を読み込み中…');
-  const url=`https://docs.google.com/spreadsheets/d/${MASTER_SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(MASTER_SHEET_NAME)}&range=B2:D500`;
   try {
-    let res=await fetch(url);
-    if(!res.ok) throw new Error(`マスターシートへのアクセスに失敗しました (HTTP ${res.status})`);
-    const text=await res.text();
-    if(text.includes('<!DOCTYPE')||text.includes('<html')) throw new Error('マスターシートの共有設定を「リンクを知っている全員が閲覧可」に変更してください。');
-    const rows=parseCSV(text);
-    CONFIG.events=[];
-    rows.forEach(row=>{
-      const label=(row[0]||'').trim();
-      const sheetId=(row[1]||'').trim();
-      const sheetName=(row[2]||'').trim();
-      if(label&&sheetId&&label!=='イベント名') CONFIG.events.push({label,sheetId,sheetName});
-    });
-    if(CONFIG.events.length===0) throw new Error('有効なイベント情報（B2セル以降）が見つかりません。');
-    renderEventTabs();
-    currentEventIdx=0;
-    currentSheetId=CONFIG.events[0].sheetId;
-    loadEventData();
+    const text = await fetchSheet(MASTER_ID, MASTER_TAB, 'B2:D500');
+    const rows = parseCSV(text);
+    CONFIG.events = rows
+      .filter(r => r[0] && r[1] && r[0]!=='イベント名')
+      .map(r => ({label:r[0].trim(), sid:r[1].trim(), sname:r[2]?.trim()||''}));
+    if (!CONFIG.events.length) throw new Error('有効なイベント情報が見つかりません。');
+    renderTabs();
+    curEvIdx = 0;
+    loadEvent();
   } catch(e){ showError(e.message); }
 }
 
-function renderEventTabs() {
-  const bar=document.getElementById('event-tab-bar');
-  if(!CONFIG.events||CONFIG.events.length<=1){bar.style.display='none';return;}
-  bar.innerHTML='';
-  CONFIG.events.forEach((ev,idx)=>{
-    const btn=document.createElement('button');
-    btn.className=`ev-tab ${idx===currentEventIdx?'active':''}`;
-    btn.textContent=ev.label;
-    btn.onclick=()=>switchEvent(idx);
+function renderTabs(){
+  const bar = document.getElementById('event-tab-bar');
+  if (CONFIG.events.length <= 1){ bar.style.display='none'; return; }
+  bar.innerHTML = '';
+  CONFIG.events.forEach((ev,i)=>{
+    const btn = document.createElement('button');
+    btn.className = `ev-tab ${i===curEvIdx?'active':''}`;
+    btn.textContent = ev.label;
+    btn.onclick = ()=>switchEv(i);
     bar.appendChild(btn);
   });
   bar.style.display='flex';
 }
-
-function switchEvent(idx) {
-  if(currentEventIdx===idx) return;
-  currentEventIdx=idx;
-  currentSheetId=CONFIG.events[idx].sheetId;
-  document.querySelectorAll('.ev-tab').forEach((btn,i)=>btn.classList.toggle('active',i===idx));
+function switchEv(i){
+  if(i===curEvIdx) return;
+  curEvIdx=i;
+  document.querySelectorAll('.ev-tab').forEach((b,j)=>b.classList.toggle('active',i===j));
+  resetUI(); loadEvent();
+}
+function resetUI(){
   document.getElementById('search-input').value='';
-  currentSearch='';currentFilter='all';
-  document.querySelectorAll('.fbtn').forEach(b=>b.classList.toggle('active',b.getAttribute('onclick').includes('all')));
-  loadEventData();
+  curSearch=''; curFilter='all';
+  document.querySelectorAll('.fbtn').forEach(b=>b.classList.toggle('active',b.getAttribute('onclick').includes("'all'")));
 }
 
-async function loadEventData() {
+// ════════════════════════════════════
+//  データ取得
+// ════════════════════════════════════
+async function loadEvent(){
   showLoading('データを同期中…');
-  const activeEvent=CONFIG.events[currentEventIdx];
-  const sheetName=activeEvent?activeEvent.sheetName:'';
-  let url=`https://docs.google.com/spreadsheets/d/${currentSheetId}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetName)}&range=B1:I500`;
-  if(!sheetName||sheetName==='—'||sheetName==='なし') url=`https://docs.google.com/spreadsheets/d/${currentSheetId}/gviz/tq?tqx=out:csv&range=B1:I500`;
+  const ev = CONFIG.events[curEvIdx];
   try {
-    let res=await fetch(url);
-    if(res.status===404&&sheetName){
-      res=await fetch(`https://docs.google.com/spreadsheets/d/${currentSheetId}/gviz/tq?tqx=out:csv&range=B1:I500`);
+    const [stText, arText] = await Promise.all([
+      fetchSheet(ev.sid, ev.sname, 'B1:I500'),
+      fetchSheet(ev.sid, '配列',   'A1:T2000').catch(()=>null),
+    ]);
+
+    const byID = {};
+    const brokenIDList = []; 
+
+    if (arText) {
+      const arRows = parseCSV(arText);
+      const start = (arRows[0]?.[AC.申請ID]||'').includes('申請') ? 1 : 0;
+      
+      arRows.slice(start).forEach(r => {
+        if (r.length <= Math.max(...Object.values(AC))) return; 
+
+        const 申請ID = (r[AC.申請ID]||'').trim();
+        const ts = (r[AC.TS]||'').trim();
+        const url = (r[AC.ファイルURL]||'').trim();
+        const 出演ID = (r[AC.出演ID]||'').trim();
+
+        if (!申請ID && !ts && !url) return;
+
+        const isIdBroken = !出演ID || 出演ID==='#N/A' || 出演ID==='#REF!' || 出演ID.startsWith('#');
+        
+        if ((ts || url || 申請ID) && isIdBroken) {
+          brokenIDList.push({
+            reqId:       申請ID,
+            ts:          ts || '不明',
+            url:         url,
+            fileType:    (r[AC.ファイル種別]||'').trim() || '音源',
+            soundTiming: (r[AC.音出し]||'').trim(),
+            className:   (r[AC.クラス名]||'').trim()
+          });
+          return;
+        }
+
+        if (isIdBroken) return; 
+
+        if (!byID[出演ID]) byID[出演ID] = [];
+        byID[出演ID].push({
+          reqId:       申請ID,
+          ts:          ts || '不明',
+          url:         url,
+          fileType:    (r[AC.ファイル種別]||'').trim() || '音源',
+          soundTiming: (r[AC.音出し]||'').trim(),
+        });
+      });
     }
-    if(!res.ok) throw new Error(`シートを取得できません (HTTP ${res.status})`);
-    const text=await res.text();
-    if(text.includes('<!DOCTYPE')||text.includes('<html')) throw new Error('シートへのアクセス権がありません。');
-    const rows=parseCSV(text);
-    if(rows.length>0&&(rows[0][0]==='Pro'||rows[0][1]==='出番')) processGroupedData(rows.slice(1));
-    else processGroupedData(rows);
-    document.getElementById('last-updated').textContent='同期: '+new Date().toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'});
+
+    const stRows = parseCSV(stText);
+    const dataRows = (stRows[0]?.[0]==='Pro'||stRows[0]?.[1]==='出番') ? stRows.slice(1) : stRows;
+
+    const tracks = [];
+    dataRows.forEach(r => {
+      const name = (r[SC.クラス名]||'').trim();
+      if (!name || name==='フォーム提出名') return;
+
+      const cid = (r[SC.クラスID]||'').trim();
+      const isSourceIdError = !cid || cid.startsWith('#') || cid.length < 2;
+      const matchedBrokenSub = brokenIDList.filter(b => name.includes(b.className) || b.className.includes(name));
+      const isIdWarn = isSourceIdError || matchedBrokenSub.length > 0;
+
+      const subs = isSourceIdError ? [] : (byID[cid] || []);
+      if (subs.length === 0 && matchedBrokenSub.length > 0) {
+        subs.push(...matchedBrokenSub); 
+      }
+
+      const byType = {}; 
+      subs.forEach(s => {
+        const ft = s.fileType || '音源';
+        if (!byType[ft]) byType[ft] = [];
+        byType[ft].push(s);
+      });
+
+      tracks.push({
+        pro: (r[SC.Pro]||'').trim(),
+        turn: (r[SC.出番]||'').trim(),
+        name, cid, isIdWarn,
+        subs,     
+        byType,   
+        hasDup: Object.values(byType).some(arr => arr.length > 1),
+      });
+    });
+
+    allTracks = tracks;
+    renderAll();
+    document.getElementById('last-updated').textContent =
+      '同期: ' + new Date().toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'});
   } catch(e){ showError(e.message); }
 }
 
-function processGroupedData(rows) {
-  const groups={};const orderList=[];
-  rows.forEach(row=>{
-    const name=(row[COL.フォーム提出名]||'').trim();
-    if(!name||name==='フォーム提出名'||name==='リンクの書き換えなど') return;
-    if(!groups[name]){
-      groups[name]={name,pro:(row[COL.Pro]||'').trim(),turn:(row[COL.出番]||'').trim(),classId:(row[COL.クラス判定ID]||'').trim(),soundTiming:'—',idMismatch:false,tasks:[]};
-      orderList.push(name);
-    }
-    const type=(row[COL.種別]||'').trim();
-    const status=(row[COL.提出状況]||'').trim();
-    const isDone=(status==='提出完了');
-    const fileLink=(row[COL.データ]||'').trim();
-    const cid=(row[COL.クラス判定ID]||'').trim();
-    if(!cid||cid.length<3||cid.includes('打ち間違い')||cid.includes('未付与')||cid==='—') groups[name].idMismatch=true;
-    if((row[COL.音出し]||'').trim()&&(groups[name].soundTiming==='—'||type.includes('音源'))) groups[name].soundTiming=(row[COL.音出し]||'').trim();
-    if(type) groups[name].tasks.push({label:type,isDone,link:fileLink});
+// ════════════════════════════════════
+//  描画
+// ════════════════════════════════════
+function renderAll(){
+  const total = allTracks.length;
+  const done  = allTracks.filter(t=>t.subs.length>0 && !t.isIdWarn).length;
+  const dup   = allTracks.filter(t=>t.hasDup).length;
+  const pct   = total ? Math.round(done/total*100) : 0;
+  document.getElementById('cnt-total').textContent = total;
+  document.getElementById('cnt-done').textContent  = done;
+  document.getElementById('cnt-pend').textContent  = total-done;
+  document.getElementById('cnt-dup').textContent   = dup;
+  document.getElementById('prog-pct').textContent  = pct+'%';
+  document.getElementById('prog-fill').style.width = pct+'%';
+  ['summary-bar','prog-section','search-filter'].forEach(id=>{
+    const el=document.getElementById(id); if(el)el.style.display='';
   });
-  allTracks=orderList.map(name=>groups[name]);
-  renderAll();
+  openIdx=-1; renderList();
 }
 
-function renderAll() {
-  const total=allTracks.length;
-  const done=allTracks.filter(t=>t.tasks.length>0&&t.tasks.every(task=>task.isDone)).length;
-  let totalTasks=0,doneTasks=0;
-  allTracks.forEach(t=>{totalTasks+=t.tasks.length;t.tasks.forEach(task=>{if(task.isDone)doneTasks++;});});
-  const pct=totalTasks?Math.round((doneTasks/totalTasks)*100):0;
-  document.getElementById('total-count').textContent=total;
-  document.getElementById('done-count').textContent=done;
-  document.getElementById('pending-count').textContent=total-done;
-  document.getElementById('prog-pct').textContent=pct+'%';
-  document.getElementById('prog-fill').style.width=pct+'%';
-  ['summary-bar','prog-section','search-filter'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='';});
-  openIdx=-1;renderList();
-}
-
-function getFiltered() {
-  const q=currentSearch.trim().toLowerCase();
+function getFiltered(){
+  const q = curSearch.trim().toLowerCase();
   return allTracks.filter(t=>{
-    const isAllDone=t.tasks.length>0&&t.tasks.every(task=>task.isDone);
-    let matchFilter=true;
-    if(currentFilter==='done') matchFilter=isAllDone;
-    else if(currentFilter==='pend') matchFilter=!isAllDone;
-    else if(currentFilter==='id-mismatch') matchFilter=t.idMismatch;
-    if(!matchFilter) return false;
-    if(!q) return true;
-    return t.name.toLowerCase().includes(q)||t.pro.toLowerCase().includes(q)||t.classId.toLowerCase().includes(q)||t.turn.toLowerCase().includes(q);
+    let ok = true;
+    if      (curFilter==='submitted') ok = t.subs.length>0 && !t.isIdWarn;
+    else if (curFilter==='none')      ok = t.subs.length===0 && !t.isIdWarn;
+    else if (curFilter==='dup')       ok = t.hasDup;
+    else if (curFilter==='idwarn')    ok = t.isIdWarn;
+    if (!ok) return false;
+    if (!q)  return true;
+    return t.name.toLowerCase().includes(q)||t.cid.toLowerCase().includes(q)
+        || t.turn.toLowerCase().includes(q)||t.pro.toLowerCase().includes(q);
   });
 }
 
-function renderList() {
-  const filtered=getFiltered();
-  const q=currentSearch.trim().toLowerCase();
-  if(!filtered.length){
-    document.getElementById('main-area').innerHTML=`<div class="no-results">${q?`「${esc(currentSearch)}」に一致するクラスが見つかりません`:'条件に該当するクラスがありません'}</div>`;
+function renderList(){
+  const filtered = getFiltered();
+  const q = curSearch.trim().toLowerCase();
+  if (!filtered.length){
+    document.getElementById('main-area').innerHTML =
+      `<div class="no-results">${q?`「${esc(curSearch)}」に一致するクラスがありません`:'条件に該当するクラスがありません'}</div>`;
     return;
   }
-  const wrap=document.createElement('div');
-  const hdr=document.createElement('div');
+  const wrap = document.createElement('div');
+  const hdr = document.createElement('div');
   hdr.className='list-header';
-  hdr.innerHTML='<span>出番</span><span>クラス情報</span><span>各種提出状況</span><span></span>';
+  hdr.innerHTML='<span>出番</span><span>クラス情報</span><span>提出状況</span><span></span>';
   wrap.appendChild(hdr);
-  const list=document.createElement('div');
+  const list = document.createElement('div');
   list.className='tracklist';
 
   filtered.forEach(t=>{
-    const globalIdx=allTracks.indexOf(t);
-    const item=document.createElement('div');
-    item.className='track-item';
-    item.id=`item-${globalIdx}`;
+    const gi = allTracks.indexOf(t);
+    const item = document.createElement('div');
+    item.className = `track-item${t.hasDup?' has-dup':''}${t.isIdWarn?' id-warn':''}`;
+    item.id = `item-${gi}`;
 
-    const idTag=t.idMismatch?'<span class="id-warn-tag">ID不一致 / 要確認</span>':'';
+    let rsHtml = '';
+    if (t.isIdWarn) {
+      rsHtml = `<div class="rs-row"><span class="rs-label">ID不具合</span><span class="rs-val warn">🔴 要確認</span></div>`;
+    } else if (!t.subs.length) {
+      rsHtml = `<div class="rs-row"><span class="rs-label">提出</span><span class="rs-val ng">❌ なし</span></div>`;
+    } else {
+      Object.entries(t.byType).forEach(([ft, arr])=>{
+        const isDup = arr.length>1;
+        rsHtml += `<div class="rs-row">
+          <span class="rs-label">${esc(ft)}</span>
+          <span class="rs-val ${isDup?'dup':'ok'}">${isDup?`⚠️ ${arr.length}件`:'✅ 1件'}</span>
+        </div>`;
+      });
+    }
 
-    let statusGroupHtml='';
-    t.tasks.forEach(task=>{
-      const badge=task.isDone?'<span class="status-dot done">✅ 完了</span>':'<span class="status-dot pend">❌ 未</span>';
-      statusGroupHtml+=`<div class="status-item"><span class="status-label">${esc(task.label)}</span>${badge}</div>`;
-    });
+    let detailHtml = '';
+    if (t.isIdWarn) {
+      detailHtml = `<div class="id-warn-banner">
+        🔴 <strong>IDエラーを検出：</strong><br>
+        ・提出状況シートのクラス判定IDがエラー（#N/A等）になっている、または<br>
+        ・配列シート側にフォームデータはあるが、出演ID（T列）が正常に自動生成されていません。<br>
+        スプレッドシート側のID設定および数式を再確認してください。
+      </div>`;
+    }
+    if (!t.subs.length && !t.isIdWarn) {
+      detailHtml += `<div class="no-sub-banner">まだ提出がありません（未提出）。</div>`;
+    }
 
-    let taskCardsHtml='';
-    t.tasks.forEach(task=>{
-      const badgeCls=task.isDone?'done':'pend';
-      const badgeText=task.isDone?'✅ 提出完了':'❌ 未提出';
-      taskCardsHtml+=`
-        <div class="task-card">
-          <div class="task-card-header">
-            <span>${esc(task.label)}</span>
-            <span class="task-badge ${badgeCls}">${badgeText}</span>
+    Object.entries(t.byType).forEach(([ft, arr])=>{
+      const isDup = arr.length>1;
+      let cardsHtml = '';
+      arr.forEach((s,idx)=>{
+        const isLatest = idx===arr.length-1;
+        const ageBadge = isDup
+          ? (isLatest
+              ? `<span class="tag-latest">🆕 最新</span>`
+              : `<span class="tag-old">${idx+1}件目の提出（旧データ）</span>`)
+          : ``;
+        
+        cardsHtml += `
+          <div class="submit-card ${isLatest&&isDup?'is-latest':''} ${!isLatest&&isDup?'is-dup':''}">
+            <div class="submit-card-header">
+              ${ageBadge}
+              <div class="submit-meta">提出日: <strong>${esc(s.ts)}</strong></div>
+            </div>
+            <div class="submit-timing">
+              📢 音出し指定: ${esc(s.soundTiming || '—')}
+            </div>
+            ${buildFileWidget(s.url, ft)}
+          </div>`;
+      });
+      detailHtml += `
+        <div class="type-section">
+          <div class="type-section-header">
+            📁 ${esc(ft)}
+            ${isDup?`<span class="type-dup-badge">⚠️ 重複あり</span>`:''}
           </div>
-          ${buildFileWidget(task)}
+          ${cardsHtml}
         </div>`;
     });
 
-    item.innerHTML=`
-      <div class="track-row" onclick="togglePlayer(${globalIdx})">
+    const idTag = t.isIdWarn ? `<span class="tag tag-warn">🔴 ID不一致</span>` : '';
+    const dupTag = t.hasDup  ? `<span class="tag tag-dup">⚠️ ダブりあり</span>` : '';
+
+    item.innerHTML = `
+      <div class="track-row" onclick="togglePlayer(${gi})">
         <div class="track-num"><strong>${esc(t.turn||'—')}</strong><br><small style="color:var(--text-muted)">${esc(t.pro)}</small></div>
         <div class="track-info">
           <div class="track-name">${highlight(t.name,q)}</div>
           <div class="track-sub">
-            <span style="color:var(--green)">ID: ${highlight(t.classId||'未設定',q)}</span>
-            ${idTag}
+            <span style="color:var(--green)">ID: ${highlight(t.cid||'未設定',q)}</span>
+            ${idTag}${dupTag}
           </div>
         </div>
-        <div class="submission-status-group">${statusGroupHtml}</div>
+        <div class="right-summary">${rsHtml}</div>
         <div class="track-toggle">▾</div>
       </div>
-      <div class="player-embed" id="embed-${globalIdx}">
+      <div class="player-embed" id="embed-${gi}">
         <div class="detail-panel">
-          <div class="timing-row">
-            <span class="timing-label">音出しタイミング:</span>
-            <span class="timing-val">${esc(t.soundTiming)}</span>
-          </div>
-          <div style="font-size:13px;font-weight:bold;color:#fff;margin-bottom:10px;">📄 提出データ</div>
-          ${taskCardsHtml}
+          ${detailHtml}
         </div>
       </div>`;
     list.appendChild(item);
@@ -431,43 +526,117 @@ function renderList() {
   document.getElementById('main-area').appendChild(wrap);
 }
 
-function togglePlayer(idx) {
+// ════════════════════════════════════
+//  ファイルウィジェット
+// ════════════════════════════════════
+function isAudioType(ft){ return /音源|BGM|SE|オーディオ|audio/i.test(ft); }
+function gdPreview(url){
+  const m=url.match(/\/file\/d\/([^\/\?]+)/)||url.match(/[?&]id=([^&]+)/);
+  return m?`https://drive.google.com/file/d/${m[1]}/preview`:url;
+}
+function gdDirect(url){
+  const m=url.match(/\/file\/d\/([^\/\?]+)/)||url.match(/[?&]id=([^&]+)/);
+  return m?`https://drive.google.com/uc?export=download&id=${m[1]}`:url;
+}
+function buildFileWidget(url, fileType){
+  if(!url) return '<div class="no-link">リンク未登録</div>';
+  const isGD  = url.includes('drive.google.com')||url.includes('docs.google.com');
+  const isAud = /\.[a-z0-9]+$/i.test(url) ? /\.(mp3|wav|ogg|m4a|aac|flac)(\?|$)/i.test(url) : (isGD&&isAudioType(fileType));
+  const isImg = /\.(png|jpg|jpeg|gif|webp|svg)(\?|$)/i.test(url);
+  
+  if (isImg) return `<div style="text-align:center;background:rgba(0,0,0,.3);border-radius:6px;padding:8px"><img src="${esc(url)}" style="max-width:100%;max-height:400px;border-radius:4px" loading="lazy"/></div>`;
+  if (isGD){
+    if (isAud) return `<div class="inline-audio"><audio controls preload="none"><source src="${esc(gdDirect(url))}"></audio></div>
+      <a class="open-btn" href="${esc(url)}" target="_blank">↗ Googleドライブで確認</a>`;
+    return `<iframe class="gdrive-preview" src="${esc(gdPreview(url))}" allowfullscreen loading="lazy"></iframe>
+      <a class="open-btn" href="${esc(url)}" target="_blank">↗ 別タブで開く</a>`;
+  }
+  if (isAud) {
+    return `<div class="inline-audio"><audio controls preload="none"><source src="${esc(url)}"></audio></div>`;
+  }
+  return `<a class="open-btn" href="${esc(url)}" target="_blank">↗ ファイルを確認</a>`;
+}
+
+// ════════════════════════════════════
+//  UI操作
+// ════════════════════════════════════
+function togglePlayer(idx){
   const item=document.getElementById(`item-${idx}`);
   if(!item) return;
   const isOpen=item.classList.contains('open');
-  if(openIdx>=0&&openIdx!==idx){
-    const pi=document.getElementById(`item-${openIdx}`);
-    if(pi) pi.classList.remove('open');
-    openIdx=-1;
-  }
+  if(openIdx>=0&&openIdx!==idx){ const p=document.getElementById(`item-${openIdx}`); if(p)p.classList.remove('open'); openIdx=-1; }
   if(isOpen){item.classList.remove('open');openIdx=-1;}
   else{item.classList.add('open');openIdx=idx;setTimeout(()=>item.scrollIntoView({behavior:'smooth',block:'nearest'}),50);}
 }
+function onSearch(){curSearch=document.getElementById('search-input').value;openIdx=-1;renderList();}
+function setFilter(f,btn){curFilter=f;document.querySelectorAll('.fbtn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');openIdx=-1;renderList();}
+function refreshData(){loadMaster();}
 
-function onSearch(){currentSearch=document.getElementById('search-input').value;openIdx=-1;renderList();}
-function setFilter(f,btn){currentFilter=f;document.querySelectorAll('.fbtn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');openIdx=-1;renderList();}
-function refreshData(){loadMasterConfig();}
+// ════════════════════════════════════
+//  ユーティリティ
+// ════════════════════════════════════
+async function fetchSheet(sid, tab, range){
+  const url=`https://docs.google.com/spreadsheets/d/${sid}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(tab)}&range=${range}`;
+  const res=await fetch(url);
+  if(!res.ok) throw new Error(`シート「${tab}」取得失敗 (${res.status})`);
+  const text=await res.text();
+  if(text.includes('<!DOCTYPE')) throw new Error(`シート「${tab}」へのアクセス権がありません。共有設定を確認してください。`);
+  return text;
+}
+
+// クォーテーションやGoogle API独自のDate(年,月...)表示を文字列から綺麗に排除・成形する関数
+function formatRawValue(val) {
+  if (!val) return '';
+  let str = val.trim();
+  
+  // ダブルクォーテーションをすべて一括削除
+  str = str.replace(/"/g, '');
+
+  if (str.includes('Date(')) {
+    const match = str.match(/Date\(([^)]+)\)/);
+    if (match) {
+      const parts = match[1].split(',').map(num => parseInt(num.trim(), 10));
+      if (parts.length >= 3) {
+        const year = parts[0];
+        const month = String(parts[1] + 1).padStart(2, '0');
+        const day = String(parts[2]).padStart(2, '0');
+        let timeStr = '';
+        if (parts.length >= 5) {
+          const hour = String(parts[3]).padStart(2, '0');
+          const min = String(parts[4]).padStart(2, '0');
+          const sec = parts[5] !== undefined ? String(parts[5]).padStart(2, '0') : '00';
+          timeStr = ` ${hour}:${min}:${sec}`;
+        }
+        return `${year}/${month}/${day}${timeStr}`;
+      }
+    }
+  }
+  return str;
+}
 
 function parseCSV(text){
   const rows=[];
   for(const line of text.split('\n')){
-    if(!line.trim()) continue;
+    if(!line.trim())continue;
     const cells=[];let cur='',inQ=false;
     for(let i=0;i<line.length;i++){
       const c=line[i];
       if(c==='"'){if(inQ&&line[i+1]==='"'){cur+='"';i++;}else inQ=!inQ;}
-      else if(c===','&&!inQ){cells.push(cur.trim());cur='';}
+      else if(c===','&&!inQ){
+        cells.push(formatRawValue(cur));
+        cur='';
+      }
       else cur+=c;
     }
-    cells.push(cur.trim());rows.push(cells);
+    cells.push(formatRawValue(cur));
+    rows.push(cells);
   }
   return rows;
 }
 
-function highlight(text,query){
-  if(!query) return esc(text);
-  const escaped=query.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
-  return esc(text).replace(new RegExp(`(${escaped})`,'gi'),'<mark>$1</mark>');
+function highlight(text,q){
+  if(!q) return esc(text);
+  return esc(text).replace(new RegExp(`(${q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')})`,'gi'),'<mark>$1</mark>');
 }
 function showLoading(msg){
   ['summary-bar','prog-section','search-filter'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});
@@ -475,7 +644,7 @@ function showLoading(msg){
 }
 function showError(msg){
   ['summary-bar','prog-section','search-filter'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});
-  document.getElementById('main-area').innerHTML=`<div class="state-msg"><div style="font-size:32px">⚠️</div><div>エラー</div><div style="font-size:12px;margin-top:8px">${msg}</div></div>`;
+  document.getElementById('main-area').innerHTML=`<div class="state-msg"><div style="font-size:32px">⚠️</div><div style="margin-bottom:8px">エラー</div><div style="font-size:12px">${msg}</div></div>`;
 }
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 </script>
