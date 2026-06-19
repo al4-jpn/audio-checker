@@ -44,11 +44,32 @@
   }
   .dl-info .dl-lbl { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: .1em; margin-bottom: 4px; }
   .dl-info .dl-date { font-size: 16px; font-weight: 700; color: var(--text); }
+  .dl-right-block { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
   .dl-countdown { text-align: right; }
   .dl-countdown .cd-lbl { font-size: 11px; color: var(--text-muted); margin-bottom: 2px; }
-  .dl-countdown .cd-val { font-family: 'Space Grotesk', sans-serif; font-size: 26px; font-weight: 700; color: var(--amber); }
+  .dl-countdown .cd-val { font-family: 'Space Grotesk', sans-serif; font-size: 26px; font-weight: 700; color: var(--amber); line-height: 1.1; }
   .dl-countdown .cd-val.urgent { color: var(--red); animation: pulse 2s infinite; }
   .dl-countdown .cd-val.over { color: var(--text-muted); }
+
+  /* 🔗 F列リンク用：提出はこちらボタン */
+  .btn-submit-form {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--green);
+    color: #000 !important;
+    text-decoration: none;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+    transition: opacity 0.2s, transform 0.2s;
+    box-shadow: 0 4px 12px rgba(29,185,84,0.2);
+  }
+  .btn-submit-form:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+  }
 
   @keyframes pulse {
     0% { opacity: 1; }
@@ -162,7 +183,8 @@
     .rs-row { padding: 1px 6px; font-size: 10px; }
     .track-toggle { grid-column: 3 / 4; grid-row: 1 / 3; display: flex; align-items: center; justify-content: center; }
     .summary-bar { grid-template-columns: repeat(2, 1fr); }
-    .deadline-container { flex-direction: column; align-items: flex-start; gap: 10px; padding: 14px; }
+    .deadline-container { flex-direction: column; align-items: flex-start; gap: 14px; padding: 14px; }
+    .dl-right-block { width: 100%; align-items: flex-start; gap: 10px; }
     .dl-countdown { text-align: left; }
   }
 </style>
@@ -186,9 +208,14 @@
       <div class="dl-lbl">⏳ 提出締め切り</div>
       <div class="dl-date" id="dl-date-str">—</div>
     </div>
-    <div class="dl-countdown">
-      <div class="cd-lbl">締め切りまで</div>
-      <div class="cd-val" id="dl-countdown-val">—</div>
+    <div class="dl-right-block">
+      <div class="dl-countdown">
+        <div class="cd-lbl">締め切りまで</div>
+        <div class="cd-val" id="dl-countdown-val">—</div>
+      </div>
+      <a id="dl-submit-btn" class="btn-submit-form" href="#" target="_blank" style="display:none">
+        📝 提出はこちら ↗
+      </a>
     </div>
   </div>
 
@@ -243,7 +270,7 @@ const AC = {
 };
 
 let CONFIG={events:[]}, curEvIdx=0, allTracks=[], curFilter='all', curSearch='', openIdx=-1;
-let countdownTimer = null; // タイマー保持用
+let countdownTimer = null; 
 
 // ════════════════════════════════════
 //  起動
@@ -253,8 +280,8 @@ window.addEventListener('DOMContentLoaded', loadMaster);
 async function loadMaster(){
   showLoading('イベント構成を読み込み中…');
   try {
-    // 💡 締め切りを読み込むためにB2:E500（E列まで含む）に変更
-    const text = await fetchSheet(MASTER_ID, MASTER_TAB, 'B2:E500');
+    // 💡 リンクを読み込むため、B2:F500（F列まで含む）に変更
+    const text = await fetchSheet(MASTER_ID, MASTER_TAB, 'B2:F500');
     const rows = parseCSV(text);
     CONFIG.events = rows
       .filter(r => r[0] && r[1] && r[0]!=='イベント名')
@@ -262,7 +289,8 @@ async function loadMaster(){
         label: r[0].trim(), 
         sid: r[1].trim(), 
         sname: r[2]?.trim()||'',
-        deadline: r[3]?.trim()||'' // 💡 E列の値を格納
+        deadline: r[3]?.trim()||'',
+        formUrl: r[4]?.trim()||'' // 💡 F列（インデックス4）のURLを格納
       }));
     if (!CONFIG.events.length) throw new Error('有効なイベント情報が見つかりません。');
     renderTabs();
@@ -303,8 +331,8 @@ async function loadEvent(){
   showLoading('データを同期中…');
   const ev = CONFIG.events[curEvIdx];
   
-  // ⏱️ カウントダウン初期化とレンダリング
-  initCountdown(ev.deadline);
+  // ⏱️ カウントダウンと提出フォームリンクボタンの初期化
+  initCountdown(ev.deadline, ev.formUrl);
 
   try {
     const [stText, arText] = await Promise.all([
@@ -440,24 +468,40 @@ async function loadEvent(){
 }
 
 // ════════════════════════════════════
-//  ⏱️ カウントダウン制御ロジック
+//  ⏱️ カウントダウン & リンクボタン制御
 // ════════════════════════════════════
-function initCountdown(deadlineStr) {
+function initCountdown(deadlineStr, formUrl) {
   if (countdownTimer) clearInterval(countdownTimer);
   
   const bar = document.getElementById('deadline-bar');
   const dateEl = document.getElementById('dl-date-str');
   const countEl = document.getElementById('dl-countdown-val');
+  const btnEl = document.getElementById('dl-submit-btn');
   
-  if (!deadlineStr) {
+  // 締め切りもリンクもどちらもない場合は枠ごと隠す
+  if (!deadlineStr && !formUrl) {
     bar.style.display = 'none';
     return;
   }
   
   bar.style.display = 'flex';
-  dateEl.textContent = deadlineStr;
   
-  // スラッシュ区切りの日付などをJSでパースしやすく補正
+  // フォームURLの設定と表示切り替え
+  if (formUrl) {
+    btnEl.href = formUrl;
+    btnEl.style.display = 'inline-flex';
+  } else {
+    btnEl.style.display = 'none';
+  }
+
+  if (!deadlineStr) {
+    dateEl.textContent = 'なし';
+    countEl.textContent = '—';
+    countEl.className = 'cd-val';
+    return;
+  }
+  
+  dateEl.textContent = deadlineStr;
   const targetDate = new Date(deadlineStr.replace(/-/g, '/'));
   
   function update() {
@@ -489,7 +533,6 @@ function initCountdown(deadlineStr) {
     
     countEl.textContent = timeText;
     
-    // 残り2日未満なら赤く点滅させて警告
     if (diff < 2 * 24 * 60 * 60 * 1000) {
       countEl.className = 'cd-val urgent';
     } else {
