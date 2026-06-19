@@ -736,7 +736,7 @@ function buildFileWidget(url, fileType){
   if (isImg) return `<div style="text-align:center;background:rgba(0,0,0,.3);border-radius:6px;padding:8px"><img src="${esc(url)}" style="max-width:100%;max-height:400px;border-radius:4px" loading="lazy"/></div>`;
   
   // ⏳ アナウンス文のパーツ
-  const noticeHtml = `<div class="audio-notice">⚠️ 再生できない場合「↗ Googleドライブで確認」からダウンロードすると再生できることがあります。</div>`;
+  const noticeHtml = `<div class="audio-notice">⚠️ 再生まで5~10秒ほどかかります（特にwav）少々お待ちください<br>⚠️ 再生できない場合「↗ Googleドライブで確認」からダウンロードすると再生できることがあります。</div>`;
 
   if (isGD){
     if (isAud) {
